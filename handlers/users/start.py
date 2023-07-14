@@ -13,19 +13,6 @@ async def generateOTP():
     return random.randint(111111, 999999)
 
 
-async def send_sms(otp, phone):
-    username = 'intouch'
-    password = '-u62Yq-s79HR'
-    sms_data = {
-        "messages": [{"recipient": f"{phone}", "message-id": "abc000000003",
-                      "sms": {"originator": "3700", "content": {"text": f"Ваш код подтверждения для BOT: {otp}"}}}]}
-    url = "http://91.204.239.44/broker-api/send"
-    async with aiohttp.ClientSession() as session:
-        async with session.post(url, auth=aiohttp.BasicAuth(login=username, password=password),
-                                json=sms_data) as response:
-            print(response.status)
-
-
 async def isValid(s):
     Pattern = re.compile("(0|91)?[7-9][0-9]{9}")
     return Pattern.match(s)
