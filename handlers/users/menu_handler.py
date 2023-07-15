@@ -72,7 +72,7 @@ async def menu(message: types.Message, state: FSMContext):
         await state.update_data(new_id=0)
         back_keyboard = await back_key()
         await message.answer("💥 Yangiliklar 👇", reply_markup=back_keyboard)
-        news = await get_active_sales_all()
+        news = await get_news()
         if news:
             news = news[0]
             text = f"🔥 {news.name}\n\n{news.description} "
