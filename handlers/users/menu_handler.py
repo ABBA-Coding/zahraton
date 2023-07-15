@@ -30,8 +30,7 @@ async def menu(message: types.Message, state: FSMContext):
         await state.set_state('aksiya')
     if message.text == "Izoh qoldirish":
         keyboard = await back_key()
-        await message.answer("ltimos o'z izohingizni shu yerda yozib qoldiring 👇\nMutaxassislarimiz o'rganib chiqib "
-                             "tez orada sizga javob berishadi",
+        await message.answer("ltimos o'z izohingizni shu yerda yozib qoldiring 👇\nMutaxassislarimiz o'rganib chiqib tez orada sizga javob berishadi",
                              reply_markup=keyboard)
         await state.set_state("get_comment")
     if message.text == 'QrCode':
