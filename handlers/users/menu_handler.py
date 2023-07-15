@@ -14,8 +14,8 @@ async def menu(message: types.Message, state: FSMContext):
     if message.text == "Mening hisobim/Bonuslarim":
         keyboard = await menu_keyboard()
         orders_m = 0
-        cashbacks = 0
-        text = f"\n\nHozirgi keshbek: {cashbacks}"
+        cashbacks = await get_user_balance(user.phone)
+        text = f"\n\nHozirgi keshbek: {cashbacks['balance']}"
         await message.answer(text, reply_markup=keyboard)
     if message.text == "Joriy aksiyalar":
         await state.update_data(sale_id=0)
