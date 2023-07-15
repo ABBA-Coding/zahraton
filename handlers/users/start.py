@@ -89,7 +89,6 @@ async def get_phone(message: types.Message, state: FSMContext):
         await state.update_data(phone=phone_number)
         back_keyboard = await back_key()
         data = await state.get_data()
-        await message.answer(f"{phone_number} raqamiga yozilgan 📩 SMS ni kiriting 👇", reply_markup=back_keyboard)
         keyboard = await menu_keyboard()
         user = await register_new_user(phone=phone_number, gender=data['gender'], name=data['name'],
                                        user_id=message.from_user.id, longitude=data['longitude'],
