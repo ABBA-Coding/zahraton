@@ -10,6 +10,7 @@ import qrcode
 @dp.message_handler(state='user_menu')
 async def menu(message: types.Message, state: FSMContext):
     await state.update_data(action='menu')
+    user = await get_user(user_id=message.from_user.id)
     if message.text == "Mening hisobim/Bonuslarim":
         keyboard = await menu_keyboard()
         orders_m = 0
@@ -34,9 +35,9 @@ async def menu(message: types.Message, state: FSMContext):
                              reply_markup=keyboard)
         await state.set_state("get_comment")
     if message.text == 'QrCode':
-        user = await get_user(message.from_id)
         balance = await get_user_balance(user.phone)
-        q = qrcode.make(f'{message.from_user.id}')
+        user_uuid = get_api_uuid(user.phone)
+        q = qrcode.make(f'{user_uuid}')
         q.save('qrcode.png')
         keyboard = await menu_keyboard()
         photo = open('qrcode.png', 'rb')
@@ -44,7 +45,7 @@ async def menu(message: types.Message, state: FSMContext):
                                                         f"👆\n\nHozirgi keshbekingiz: {balance['balance']} UZS",
                                    reply_markup=keyboard)
     if message.text == "To'lovlar tarixi":
-        orders = await get_user_orders(phone='998919203456', page=0)
+        orders = await get_user_orders(phone=message.from_user.id, page=0)
         page = 0
         text = "To'lovlar tarixi bo'limi\n"
         back_keyboard = await back_key()
@@ -136,9 +137,10 @@ async def order_history(call: types.CallbackQuery, state: FSMContext):
     indexation = int(data['index'])
     pagination = int(data['page'])
     text = "🛒 Xaridlaringiz \n"
+    user = await get_user(user_id=call.from_user.id)
     if call.data == 'next':
         pagination += 1
-        orders = await get_user_orders(phone='998919203456', page=pagination)
+        orders = await get_user_orders(phone=user.phone, page=pagination)
         if orders:
             for order in orders:
                 datetime_obj = datetime.strptime(order['chequeDate'].split('.')[0], "%Y-%m-%dT%H:%M:%S")
@@ -151,7 +153,7 @@ async def order_history(call: types.CallbackQuery, state: FSMContext):
             keyboard = await move_keyboard()
             await call.message.edit_text(text, reply_markup=keyboard)
         else:
-            orders = await get_user_orders(phone='998919203456', page=0)
+            orders = await get_user_orders(phone=user.phone, page=0)
             page = 0
             if orders:
                 i = 1
@@ -167,7 +169,7 @@ async def order_history(call: types.CallbackQuery, state: FSMContext):
                 await call.message.edit_text(text, reply_markup=keyboard)
     if call.data == 'back':
         pagination = pagination - 1 if pagination != 0 else 0
-        orders = await get_user_orders(phone='998919203456', page=pagination)
+        orders = await get_user_orders(phone=user.phone, page=pagination)
         indexation -= 5
         if orders:
             for order in orders:
