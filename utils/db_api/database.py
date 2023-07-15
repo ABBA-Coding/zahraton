@@ -52,7 +52,7 @@ def add_comment(user_id, comment):
 
 @sync_to_async
 def get_news():
-    return News.object.filter().all()
+    return News.objects.all().order_by('-id')
 
 
 def add_user(phone, name, telegram_id, gender, latitude, longitude, uuid=None):
@@ -123,10 +123,15 @@ def get_user_balance(phone):
 
 @sync_to_async
 def get_user_orders(phone, page):
-    url = f"https://cabinet.cashbek.uz/services/gocashapi/api/cheque-pageList?page={page}&size=5"
-    data = {
-        "key": "e67ab364-bc13-11ec-8a51-0242ac12000d",
-        "phone": phone
-    }
-    response = requests.post(url, json=data)
-    return response.json()
+    keys = ['e67ab364-bc13-11ec-8a51-0242ac12000d', 'e67ab364-bc13-11ec-8a51-0242ac12000d',
+            '340c3b26-59ac-11ed-91c5-0242ac12000f', 'b97c33b0-40e8-11ed-9ade-0242ac120008']
+    url = f"https://cabinet.cashbek.uz/services/gocashapi/api/cheque-pageList?page={page}&size=3"
+    orders = []
+    for key in keys:
+        data = {
+            "key": key,
+            "phone": phone
+        }
+        response = requests.post(url, json=data)
+        orders += response.json()
+    return orders
