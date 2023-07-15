@@ -58,10 +58,14 @@ async def get_name(message: types.Message, state: FSMContext):
 async def get_phone(message: types.Message, state: FSMContext):
     phone_number = message.contact.phone_number.split('+')[1]
     keyboard = await back_key()
-    await state.update_data(phone=phone_number)
     data = await state.get_data()
-    await message.answer(f"{phone_number} raqamiga yuborilgan 📩 SMS ni kiriting 👇", reply_markup=keyboard)
-    await state.set_state('get_otp')
+    await state.update_data(phone=phone_number)
+    keyboard = await menu_keyboard()
+    user = await register_new_user(phone=phone_number, gender=data['gender'], name=data['name'],
+                                   user_id=message.from_user.id, location=data['location'])
+    await message.answer("👋 Bosh menu ga xush kelibsiz\nPastdagi tugmalar orqali kerakli buyruqni tanlang",
+                         reply_markup=keyboard)
+    await state.set_state("user_menu")
 
 
 @dp.message_handler(state='get_phone', content_types=types.ContentTypes.TEXT)
@@ -75,18 +79,18 @@ async def get_phone(message: types.Message, state: FSMContext):
     else:
         await state.update_data(phone=phone_number)
         back_keyboard = await back_key()
+        data = await state.get_data()
         await message.answer(f"{phone_number} raqamiga yozilgan 📩 SMS ni kiriting 👇", reply_markup=back_keyboard)
-        await state.set_state("get_otp")
-
-
-@dp.message_handler(state='get_otp', content_types=types.ContentTypes.TEXT)
-async def get_phone(message: types.Message, state: FSMContext):
-    data = await state.get_data()
-    if message.text == '11':
         keyboard = await menu_keyboard()
         user = await register_new_user(phone=data['phone'], gender=data['gender'], name=data['name'],
                                 user_id=message.from_user.id)
         await message.answer("👋 Bosh menu ga xush kelibsiz\nPastdagi tugmalar orqali kerakli buyruqni tanlang", reply_markup=keyboard)
         await state.set_state("user_menu")
-    else:
-        await message.answer("❌ Kiritiltgan tasdiqlash kodi xato. Qayta unirib ko'ring")
+
+#
+# @dp.message_handler(state='get_otp', content_types=types.ContentTypes.TEXT)
+# async def get_phone(message: types.Message, state: FSMContext):
+#     data = await state.get_data()
+#     if message.text == '11':
+#     else:
+#         await message.answer("❌ Kiritiltgan tasdiqlash kodi xato. Qayta unirib ko'ring")

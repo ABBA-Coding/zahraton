@@ -55,18 +55,19 @@ def get_news():
     return News.object.filter().all()
 
 
-def add_user(phone, name, telegram_id, uuid=None):
+def add_user(phone, name, telegram_id, gender, uuid=None):
     user, created = User.objects.get_or_create(
         phone=phone
     )
     user.telegram_id = telegram_id
     user.full_name = name
+    user.gender = gender
     user.save()
     return user
 
 
 @sync_to_async
-def register_new_user(gender, phone, name, user_id):
+def register_new_user(gender, phone, name, user_id, location):
     data = {
             "key": "e67ab364-bc13-11ec-8a51-0242ac12000d",
             "phone": phone,
@@ -86,8 +87,7 @@ def register_new_user(gender, phone, name, user_id):
 
     response = requests.post(url, json=payload)
     if response.status_code == 200 and 'userUUID' in response.json():
-        user = add_user(name=name, phone=phone, telegram_id=user_id)
-        print(user.phone)
+        user = add_user(name=name, phone=phone, telegram_id=user_id, gender=gender)
         return user
     else:
         return None
