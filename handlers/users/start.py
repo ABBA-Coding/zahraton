@@ -26,7 +26,7 @@ async def start_func(message: types.Message, state: FSMContext):
         await message.answer("Bosh menyuga xush kelibsiz. Kerakli tugmani tanlang.", reply_markup=keyboard)
         await state.set_state("user_menu")
     else:
-        await message.answer("👋 Assalomu alaykum\nZahratoon botiga xush kelibsiz Iltimos ism, sharifingizni kiriting",
+        await message.answer("👋 Assalomu alaykum\nZahratoon botiga xush kelibsiz. Iltimos ism, sharifingizni kiriting",
                              reply_markup=ReplyKeyboardRemove())
         await state.set_state("get_name")
 
@@ -55,7 +55,7 @@ async def get_name(message: types.Message, state: FSMContext):
         Longitude = str(location.longitude)
         await state.update_data(longitude=Longitude, latitude=Latitude)
         keyboard = await phone_keyboard()
-        await message.answer("Telefon raqamininfizni xalqaro formatda(998YYXXXXXXX) kiriting. Yoki raqamni ulashing 👇",
+        await message.answer("Telefon raqamingizni xalqaro formatda(998YYXXXXXXX) kiriting. Yoki raqamni ulashing 👇",
                              reply_markup=keyboard)
         await state.set_state('get_phone')
     else:
@@ -73,7 +73,7 @@ async def get_phone(message: types.Message, state: FSMContext):
     user = await register_new_user(phone=phone_number, gender=data['gender'], name=data['name'],
                                    user_id=message.from_user.id, longitude=data['longitude'],
                                    latitude=data['latitude'])
-    await message.answer("👋 Bosh menu ga xush kelibsiz\nPastdagi tugmalar orqali kerakli buyruqni tanlang",
+    await message.answer("👋 Bosh menyuga xush kelibsiz\nPastdagi tugmalar orqali kerakli buyruqni tanlang",
                          reply_markup=keyboard)
     await state.set_state("user_menu")
 
@@ -94,7 +94,7 @@ async def get_phone(message: types.Message, state: FSMContext):
         user = await register_new_user(phone=phone_number, gender=data['gender'], name=data['name'],
                                        user_id=message.from_user.id, longitude=data['longitude'],
                                        latitude=data['latitude'])
-        await message.answer("👋 Bosh menu ga xush kelibsiz\nPastdagi tugmalar orqali kerakli buyruqni tanlang",
+        await message.answer("👋 Bosh menyuga xush kelibsiz\nPastdagi tugmalar orqali kerakli buyruqni tanlang",
                              reply_markup=keyboard)
         await state.set_state("user_menu")
 

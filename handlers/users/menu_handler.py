@@ -30,7 +30,7 @@ async def menu(message: types.Message, state: FSMContext):
         await state.set_state('aksiya')
     if message.text == "Izoh qoldirish":
         keyboard = await back_key()
-        await message.answer("ltimos o'z izohingizni shu yerda yozib qoldiring 👇\nMutaxassislarimiz o'rganib chiqib tez orada sizga javob berishadi",
+        await message.answer("Iltimos o'z izohingizni shu yerda yozib qoldiring 👇\nMutaxassislarimiz o'rganib chiqib tez orada sizga javob berishadi",
                              reply_markup=keyboard)
         await state.set_state("get_comment")
     if message.text == 'QrCode':
@@ -40,7 +40,7 @@ async def menu(message: types.Message, state: FSMContext):
         q.save('qrcode.png')
         keyboard = await menu_keyboard()
         photo = open('qrcode.png', 'rb')
-        await message.answer_photo(photo=photo, caption=f"Sizning keshbekingizni ishlatish uchun QR codingiz "
+        await message.answer_photo(photo=photo, caption=f"Sizning keshbekingizni ishlatish uchun QR kodingiz "
                                                         f"👆\n\nHozirgi keshbekingiz: {balance['balance']} UZS",
                                    reply_markup=keyboard)
     if message.text == "To'lovlar tarixi":
