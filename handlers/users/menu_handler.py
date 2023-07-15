@@ -66,6 +66,7 @@ async def menu(message: types.Message, state: FSMContext):
             keyboard = await menu_keyboard()
             text = "Hozircha to'lovlar tarixingiz bo'sh ⚠️"
             await message.answer(text, reply_markup=keyboard)
+            await state.set_state('user_nemu')
         await state.set_state('order_history')
 
     if message.text == "Yangiliklar":
