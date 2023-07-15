@@ -83,7 +83,9 @@ async def menu(message: types.Message, state: FSMContext):
 
 @dp.message_handler(state="get_comment")
 async def get_comment(message: types.Message, state: FSMContext):
-    await add_comment(user_id=message.from_user.id, comment=message.text)
+    # await add_comment(user_id=message.from_user.id, comment=message.text)
+    await bot.forward_message(chat_id=-1001669827084, from_chat_id=message.chat.id, message_id=message.message_id)
+
     keyboard = await menu_keyboard()
     await message.answer("Murojaatingiz o'rganish uchun mutaxassisimizga yetkazildi\n"
                          "Kerakli bo'limni tanlang", reply_markup=keyboard)
