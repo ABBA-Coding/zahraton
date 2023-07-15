@@ -22,10 +22,11 @@ async def menu(message: types.Message, state: FSMContext):
         back_keyboard = await back_key()
         await message.answer("Hozirda aktiv bo'lgan aksiyalar 👇", reply_markup=back_keyboard)
         sale = await get_active_sales_all()
-        sale = sale[0]
-        text = f"🔥 {sale.name}\n\n 🎁{sale.description} "
-        keyboard = await move_keyboard()
-        await message.answer(text, reply_markup=keyboard)
+        if sale:
+            sale = sale[0]
+            text = f"🔥 {sale.name}\n\n 🎁{sale.description} "
+            keyboard = await move_keyboard()
+            await message.answer(text, reply_markup=keyboard)
         await state.set_state('aksiya')
     if message.text == "Izoh qoldirish":
         keyboard = await back_key()
@@ -74,10 +75,11 @@ async def menu(message: types.Message, state: FSMContext):
         back_keyboard = await back_key()
         await message.answer("💥 Yangiliklar 👇", reply_markup=back_keyboard)
         news = await get_active_sales_all()
-        news = news[0]
-        text = f"🔥 {news.name}\n\n{news.description} "
-        keyboard = await move_keyboard()
-        await message.answer(text, reply_markup=keyboard)
+        if news:
+            news = news[0]
+            text = f"🔥 {news.name}\n\n{news.description} "
+            keyboard = await move_keyboard()
+            await message.answer(text, reply_markup=keyboard)
         await state.set_state('news_move')
 
 
