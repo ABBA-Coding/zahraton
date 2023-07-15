@@ -64,7 +64,7 @@ async def get_name(message: types.Message, state: FSMContext):
 
 @dp.message_handler(state='get_phone', content_types=types.ContentTypes.CONTACT)
 async def get_phone(message: types.Message, state: FSMContext):
-    phone_number = message.contact.phone_number.split('+')[1]
+    phone_number = message.contact.phone_number
     keyboard = await back_key()
     data = await state.get_data()
     await state.update_data(phone=phone_number)
