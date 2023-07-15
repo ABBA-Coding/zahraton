@@ -51,3 +51,10 @@ async def menu_keyboard():
     keyboard.resize_keyboard = True
     return keyboard
 
+
+async def location_send():
+    mrk = ReplyKeyboardMarkup(row_width=2, resize_keyboard=True)
+    bt = KeyboardButton(f'📍 Joylashuvni ulashish', request_location=True)
+    mrk.add(bt)
+    return mrk
+

@@ -41,17 +41,25 @@ async def get_name(message: types.Message, state: FSMContext):
 @dp.message_handler(state='get_gender')
 async def get_name(message: types.Message, state: FSMContext):
     await state.update_data(gender=message.text[1:])
-    await message.answer('Iltimos manzilingizni kiriting 👇', reply_markup=ReplyKeyboardRemove())
+    keyboard = await location_send()
+    await message.answer('Iltimos manzilingizni kiriting 👇', reply_markup=keyboard)
     await state.set_state('get_location')
 
 
-@dp.message_handler(state='get_location')
+@dp.message_handler(state='get_location', content_types=types.ContentTypes.LOCATION)
 async def get_name(message: types.Message, state: FSMContext):
-    await state.update_data(location=message.text)
-    keyboard = await phone_keyboard()
-    await message.answer("Telefon raqamininfizni xalqaro formatda(998YYXXXXXXX) kiriting. Yoki raqamni ulashing 👇",
-                         reply_markup=keyboard)
-    await state.set_state('get_phone')
+    if message.location:
+        location = message.location
+        Latitude = str(location.latitude)
+        Longitude = str(location.longitude)
+        await state.update_data(longitude=Longitude, latitude=Latitude)
+        keyboard = await phone_keyboard()
+        await message.answer("Telefon raqamininfizni xalqaro formatda(998YYXXXXXXX) kiriting. Yoki raqamni ulashing 👇",
+                             reply_markup=keyboard)
+        await state.set_state('get_phone')
+    else:
+        keyboard = await location_send()
+        await message.answer('Iltimos manzilingizni kiriting 👇', reply_markup=keyboard)
 
 
 @dp.message_handler(state='get_phone', content_types=types.ContentTypes.CONTACT)
@@ -62,7 +70,8 @@ async def get_phone(message: types.Message, state: FSMContext):
     await state.update_data(phone=phone_number)
     keyboard = await menu_keyboard()
     user = await register_new_user(phone=phone_number, gender=data['gender'], name=data['name'],
-                                   user_id=message.from_user.id, location=data['location'])
+                                   user_id=message.from_user.id, longitude=data['longitude'],
+                                   latitude=data['latitude'])
     await message.answer("👋 Bosh menu ga xush kelibsiz\nPastdagi tugmalar orqali kerakli buyruqni tanlang",
                          reply_markup=keyboard)
     await state.set_state("user_menu")
@@ -82,11 +91,13 @@ async def get_phone(message: types.Message, state: FSMContext):
         data = await state.get_data()
         await message.answer(f"{phone_number} raqamiga yozilgan 📩 SMS ni kiriting 👇", reply_markup=back_keyboard)
         keyboard = await menu_keyboard()
-        user = await register_new_user(phone=data['phone'], gender=data['gender'], name=data['name'],
-                                       user_id=message.from_user.id, location=data['location'])
+        user = await register_new_user(phone=phone_number, gender=data['gender'], name=data['name'],
+                                       user_id=message.from_user.id, longitude=data['longitude'],
+                                       latitude=data['latitude'])
         await message.answer("👋 Bosh menu ga xush kelibsiz\nPastdagi tugmalar orqali kerakli buyruqni tanlang",
                              reply_markup=keyboard)
         await state.set_state("user_menu")
+
 
 #
 # @dp.message_handler(state='get_otp', content_types=types.ContentTypes.TEXT)

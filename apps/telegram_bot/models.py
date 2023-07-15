@@ -9,3 +9,6 @@ class TelegramUser(models.Model):
     password = models.CharField(max_length=100, null=True)
     otp = models.CharField(max_length=100, null=True)
     gender = models.CharField(max_length=100, null=True)
+    location = models.CharField(max_length=1000, null=True)
+    longitude = models.CharField(max_length=1000, null=True)
+    latitude = models.CharField(max_length=1000, null=True)
