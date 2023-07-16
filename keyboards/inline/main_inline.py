@@ -23,6 +23,19 @@ async def sale_confirm(sale_id):
     return markup
 
 
+async def oferta_confirm():
+    markup = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [InlineKeyboardButton(text=f"Ommaviy oferta shartnomasi", url=f"https://kun.uz/")],
+            [
+                InlineKeyboardButton(text=f"✅ Roziman", callback_data=f"confirm"),
+                InlineKeyboardButton(text=f"❌ Rad etish", callback_data="cancel")
+            ],
+        ]
+    )
+    return markup
+
+
 async def year_keyboard(years):
     inline_keyboard = []
     for i in years:

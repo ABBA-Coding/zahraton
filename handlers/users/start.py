@@ -2,6 +2,7 @@ from aiogram import types
 from aiogram.dispatcher import FSMContext
 from loader import dp, bot
 from keyboards.inline.menu_button import *
+from keyboards.inline.main_inline import *
 from utils.db_api.database import *
 
 import re
@@ -81,42 +82,38 @@ async def get_name(message: types.Message, state: FSMContext):
 @dp.message_handler(state='get_phone', content_types=types.ContentTypes.CONTACT)
 async def get_phone(message: types.Message, state: FSMContext):
     phone_number = message.contact.phone_number
-    keyboard = await back_key()
-    data = await state.get_data()
+    keyboard = await oferta_confirm()
     await state.update_data(phone=phone_number)
-    keyboard = await menu_keyboard()
-    user = await register_new_user(phone=phone_number, gender=data['gender'], name=data['name'],
-                                   user_id=message.from_user.id, longitude=data['longitude'],
-                                   latitude=data['latitude'], birth=data['birth'])
-    await message.answer("👋 Bosh menyuga xush kelibsiz\nPastdagi tugmalar orqali kerakli buyruqni tanlang",
-                         reply_markup=keyboard)
-    await state.set_state("user_menu")
+    await message.answer('Biz sizni malumotlaringizni qayta ishlashga ruhsat bering', reply_markup=keyboard)
+    await state.set_state('confir_oferta')
 
 
 @dp.message_handler(state='get_phone', content_types=types.ContentTypes.TEXT)
 async def get_phone(message: types.Message, state: FSMContext):
     phone_number = message.text
-    if not await isValid(phone_number):
-        keyboard = await phone_keyboard()
-        await message.answer("⚠️ Telefon raqamingizni noto'g'ri kiritdingiz. Iltimos, qaytadan kiriting.",
-                             reply_markup=keyboard)
-        return
-    else:
-        await state.update_data(phone=phone_number)
+    await state.update_data(phone=phone_number)
+    keyboard = await oferta_confirm()
+    await state.update_data(phone=phone_number)
+    await message.answer('Biz sizni malumotlaringizni qayta ishlashga ruhsat bering', reply_markup=keyboard)
+    await state.set_state('confir_oferta')
+
+
+@dp.callback_query_handler(state='confir_oferta')
+async def get_confirm(call: types.CallbackQuery, state: FSMContext):
+    call_data = call.data
+    if call_data == 'confirm':
         data = await state.get_data()
         keyboard = await menu_keyboard()
-        user = await register_new_user(phone=phone_number, gender=data['gender'], name=data['name'],
-                                       user_id=message.from_user.id, longitude=data['longitude'],
-                                       latitude=data['latitude'])
-        await message.answer("👋 Bosh menyuga xush kelibsiz\nPastdagi tugmalar orqali kerakli buyruqni tanlang",
-                             reply_markup=keyboard)
+        user = await register_new_user(phone=data['phone'], gender=data['gender'], name=data['name'],
+                                       user_id=call.from_user.id, longitude=data['longitude'],
+                                       latitude=data['latitude'], birth=data['birth'])
+        await call.message.delete()
+        await bot.send_message(chat_id=call.from_user.id,
+                               text="👋 Bosh menyuga xush kelibsiz\nPastdagi tugmalar orqali kerakli buyruqni tanlang",
+                               reply_markup=keyboard)
         await state.set_state("user_menu")
+    elif call_data == 'cancel':
+        await call.message.delete()
+        await bot.send_message(chat_id=call.from_user.id, text="Botni ishga tushurish uchun /start tugmasini bosing",
+                               reply_markup=ReplyKeyboardRemove())
 
-
-#
-# @dp.message_handler(state='get_otp', content_types=types.ContentTypes.TEXT)
-# async def get_phone(message: types.Message, state: FSMContext):
-#     data = await state.get_data()
-#     if message.text == '11':
-#     else:
-#         await message.answer("❌ Kiritiltgan tasdiqlash kodi xato. Qayta unirib ko'ring")
