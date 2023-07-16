@@ -8,6 +8,8 @@ import re
 import aiohttp
 import random
 
+date_pattern = re.compile(r"\d{4}-\d{2}-\d{2}")
+
 
 async def generateOTP():
     return random.randint(111111, 999999)
@@ -41,10 +43,23 @@ async def get_name(message: types.Message, state: FSMContext):
 
 @dp.message_handler(state='get_gender')
 async def get_name(message: types.Message, state: FSMContext):
-    await state.update_data(gender=message.text[1:])
-    keyboard = await location_send()
-    await message.answer('Iltimos manzilingizni kiriting 👇', reply_markup=keyboard)
-    await state.set_state('get_location')
+    await state.update_data(gender=message.text[3:])
+
+    await message.answer('Iltimos tug\'ilgan sanangizni <b>1980-12-24</b> shaklida kiriting kiriting 👇',
+                         reply_markup=ReplyKeyboardRemove())
+    await state.set_state('get_birth')
+
+
+@dp.message_handler(state='get_birth')
+async def get_name(message: types.Message, state: FSMContext):
+    if date_pattern.match(message.text) is not None:
+        await state.update_data(birth=message.text)
+        keyboard = await location_send()
+        await message.answer('Iltimos manzilingizni kiriting 👇', reply_markup=keyboard)
+        await state.set_state('get_location')
+    else:
+        await message.answer('Iltimos tug\'ilgan sanangizni <b>1980-12-24</b> shaklida kiriting kiriting 👇',
+                             reply_markup=ReplyKeyboardRemove())
 
 
 @dp.message_handler(state='get_location', content_types=types.ContentTypes.LOCATION)
@@ -72,7 +87,7 @@ async def get_phone(message: types.Message, state: FSMContext):
     keyboard = await menu_keyboard()
     user = await register_new_user(phone=phone_number, gender=data['gender'], name=data['name'],
                                    user_id=message.from_user.id, longitude=data['longitude'],
-                                   latitude=data['latitude'])
+                                   latitude=data['latitude'], birth=data['birth'])
     await message.answer("👋 Bosh menyuga xush kelibsiz\nPastdagi tugmalar orqali kerakli buyruqni tanlang",
                          reply_markup=keyboard)
     await state.set_state("user_menu")
@@ -88,7 +103,6 @@ async def get_phone(message: types.Message, state: FSMContext):
         return
     else:
         await state.update_data(phone=phone_number)
-        back_keyboard = await back_key()
         data = await state.get_data()
         keyboard = await menu_keyboard()
         user = await register_new_user(phone=phone_number, gender=data['gender'], name=data['name'],

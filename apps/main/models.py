@@ -11,6 +11,13 @@ MONTH, SEASON, YEAR = (
 )
 
 
+ERKAK, AYOL, ALL = (
+    "👨‍💼 Erkaklar uchun",
+    "👩‍💼 Ayollar uchun",
+    "Hamma uchun"
+)
+
+
 class Sale(BaseModel):
     name = models.CharField(max_length=10000, null=True, blank=True)
     description = models.CharField(max_length=10000, null=True, blank=True)
@@ -27,9 +34,18 @@ class Sale(BaseModel):
 
 
 class News(BaseModel):
+    GENDER = (
+        (ERKAK, ERKAK),
+        (AYOL, AYOL),
+        (ALL, ALL)
+    )
+
     name = models.CharField(max_length=10000, null=True, blank=True)
     description = models.CharField(max_length=10000, null=True, blank=True)
     image = models.ImageField(null=True)
+    min_age = models.IntegerField(default=0)
+    max_age = models.IntegerField(default=100)
+    for_gender = models.CharField(max_length=200, choices=GENDER, null=True)
 
     active = models.BooleanField(default=True)
 
@@ -39,6 +55,12 @@ class News(BaseModel):
             return self.image.url
         except:
             return ''
+
+    def check_user(self, age, gender):
+        if self.for_gender == "Hamma uchun" or gender in self.for_gender:
+            if self.min_age <= age <= self.max_age:
+                return True
+        return False
 
 
 class Comment(BaseModel):

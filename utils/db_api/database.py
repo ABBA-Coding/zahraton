@@ -51,11 +51,16 @@ def add_comment(user_id, comment):
 
 
 @sync_to_async
-def get_news():
-    return News.objects.all().order_by('-id')
+def get_news(user_id):
+    user = User.objects.filter(telegram_id=user_id).first()
+    news = []
+    for new in News.objects.all().order_by('-id'):
+        if new.check_user(age=user.age, gender=user.gender):
+            news.append(new)
+    return news
 
 
-def add_user(phone, name, telegram_id, gender, latitude, longitude, uuid=None):
+def add_user(phone, name, telegram_id, gender, latitude, longitude, birth, uuid=None):
     user, created = User.objects.get_or_create(
         phone=phone
     )
@@ -64,19 +69,20 @@ def add_user(phone, name, telegram_id, gender, latitude, longitude, uuid=None):
     user.gender = gender
     user.latitude = latitude
     user.longitude = longitude
+    user.birth = birth
     user.save()
     return user
 
 
 @sync_to_async
-def register_new_user(gender, phone, name, user_id, longitude, latitude):
+def register_new_user(gender, phone, name, user_id, longitude, latitude, birth):
     data = {
             "key": "e67ab364-bc13-11ec-8a51-0242ac12000d",
             "phone": phone,
             "firstName": name,
             "lastName": "NN",
             "gender": "1" if 'Ayol' in gender else "0",
-            "birthDate": "1980-01-01"
+            "birthDate": birth
     }
     url = "https://cabinet.cashbek.uz/services/gocashapi/api/register-client"
     requests.post(url, json=data)
@@ -90,7 +96,7 @@ def register_new_user(gender, phone, name, user_id, longitude, latitude):
     response = requests.post(url, json=payload)
     if response.status_code == 200 and 'userUUID' in response.json():
         user = add_user(name=name, phone=phone, telegram_id=user_id, gender=gender, longitude=longitude,
-                        latitude=latitude)
+                        latitude=latitude, birth=birth)
         return user
     else:
         return None

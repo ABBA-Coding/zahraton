@@ -72,7 +72,7 @@ async def menu(message: types.Message, state: FSMContext):
         await state.update_data(new_id=0)
         back_keyboard = await back_key()
         await message.answer("💥 Yangiliklar 👇", reply_markup=back_keyboard)
-        news = await get_news()
+        news = await get_news(message.from_user.id)
         if news:
             news = news[0]
             text = f"🔥 {news.name}\n\n{news.description} "
@@ -84,7 +84,9 @@ async def menu(message: types.Message, state: FSMContext):
 @dp.message_handler(state="get_comment")
 async def get_comment(message: types.Message, state: FSMContext):
     # await add_comment(user_id=message.from_user.id, comment=message.text)
-    await bot.forward_message(chat_id=-1001669827084, from_chat_id=message.chat.id, message_id=message.message_id)
+    user = await get_user(message.from_user.id)
+    text = f"👤 Telefon raqam: +{user.phone}\n✍️ Xabar: <b>{message.text}</b>"
+    await bot.send_message(chat_id=-1001669827084, text=text)
 
     keyboard = await menu_keyboard()
     await message.answer("Murojaatingiz o'rganish uchun mutaxassisimizga yetkazildi\n"
@@ -117,18 +119,19 @@ async def aksiya_handler(call: types.CallbackQuery, state: FSMContext):
 
 
 @dp.callback_query_handler(state="news_move")
-async def aksiya_handler(call: types.CallbackQuery, state: FSMContext):
+async def news_handler(call: types.CallbackQuery, state: FSMContext):
     data = await state.get_data()
     indexation = int(data['new_id'])
-    news = await get_news()
+    news = await get_news(call.from_user.id)
     if call.data == "next":
         indexation = (indexation + 1) % len(news)
     elif call.data == "back":
         indexation = (indexation - 1) % len(news)
+    print(indexation)
     news = news[indexation]
     text = f"🔥 {news.name}\n\n{news.description}"
     keyboard = await move_keyboard()
-    await state.update_data(bew_id=indexation)
+    await state.update_data(new_id=indexation)
     await call.message.edit_text(text, reply_markup=keyboard)
     await state.set_state('news_move')
 
