@@ -73,12 +73,12 @@ async def menu(message: types.Message, state: FSMContext):
         back_keyboard = await back_key()
         await message.answer("💥 Yangiliklar 👇", reply_markup=back_keyboard)
         news = await get_news(message.from_user.id)
+        await state.set_state('news_move')
         if news:
             news = news[0]
             text = f"🔥 {news.name}\n\n{news.description} "
             keyboard = await move_keyboard()
             await message.answer(text, reply_markup=keyboard)
-        await state.set_state('news_move')
 
 
 @dp.message_handler(state="get_comment")
@@ -127,7 +127,6 @@ async def news_handler(call: types.CallbackQuery, state: FSMContext):
         indexation = (indexation + 1) % len(news)
     elif call.data == "back":
         indexation = (indexation - 1) % len(news)
-    print(indexation)
     news = news[indexation]
     text = f"🔥 {news.name}\n\n{news.description}"
     keyboard = await move_keyboard()
