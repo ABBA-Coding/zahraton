@@ -267,13 +267,14 @@ async def get_year(call: types.CallbackQuery, state: FSMContext):
             formatted_datetime = datetime_obj.strftime("%d.%m.%Y %H:%M")
             text += f"\n\n{i}) 📆 <b>Sana</b>: {formatted_datetime}\n"
             for order_detail in order['products']:
-                formatted_amount = "{:,.3f}".format(float(order_detail['amount']) / 1000).replace(",", ".")
+                formatted_amount = "{:,.3f}".format(float(order_detail['amount']) / 1000).replace(",", ".") if order_detail['amount'] >= 1000 else int(order_detail['amount'])
 
                 text += f"\n🛒 {order_detail['name']} ✖️ {order_detail['quantity']} = <b>{formatted_amount}</b> UZS\n"
-            formatted_total = "{:,.3f}".format(float(order['totalAmount']) / 1000).replace(",", ".")
-            formatted_bonus = "{:,.3f}".format(float(order['writeOff']) / 1000).replace(",", ".")
+            formatted_total = "{:,.3f}".format(float(order['totalAmount']) / 1000).replace(",", ".") if order['totalAmount'] >= 1000 else int(order['totalAmount'])
+            print(order['writeOff'])
+            formatted_bonus = "{:,.3f}".format(float(order['writeOff']) / 1000).replace(",", ".") if order['writeOff'] >= 1000 else int(order['writeOff'])
             text += f"\n\n💲 <b>Jami</b>: <b>{formatted_total}</b> UZS" \
-                    f"\n💳 <b>Bonus orqali to'langan summa</b>: {formatted_bonus}\n"
+                    f"\n💳 <b>Bonus orqali to'langan summa</b>: {formatted_bonus} UZS\n"
             i += 1
             chunks = [text[i:i+4096] for i in range(0, len(text), 4096)]
             for chunk in chunks:
