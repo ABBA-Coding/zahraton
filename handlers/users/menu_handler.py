@@ -44,7 +44,8 @@ async def menu(message: types.Message, state: FSMContext):
                                                         f"👆\n\nHozirgi keshbekingiz: {balance['balance']} UZS",
                                    reply_markup=keyboard)
     if message.text == "To'lovlar tarixi":
-        orders = await get_user_orders(phone=message.from_user.id, page=0)
+        user = await get_user(message.from_user.id)
+        orders = await get_user_orders(phone=user.phone, page=0)
         page = 0
         text = "To'lovlar tarixi bo'limi\n"
         back_keyboard = await back_key()
