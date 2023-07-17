@@ -29,7 +29,7 @@ async def start_func(message: types.Message, state: FSMContext):
         await message.answer("Bosh menyuga xush kelibsiz. Kerakli tugmani tanlang.", reply_markup=keyboard)
         await state.set_state("user_menu")
     else:
-        await message.answer("👋 Assalomu alaykum\nZahratoon botiga xush kelibsiz. Iltimos ism, sharifingizni kiriting",
+        await message.answer("👋 Assalomu alaykum\nZahratun botiga xush kelibsiz. Iltimos ism, sharifingizni kiriting",
                              reply_markup=ReplyKeyboardRemove())
         await state.set_state("get_name")
 
