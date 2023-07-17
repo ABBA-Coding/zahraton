@@ -61,7 +61,18 @@ async def menu(message: types.Message, state: FSMContext):
                 i += 1
             await state.update_data(index=i, page=page, back_index=1, len_last_orders=len(orders))
             keyboard = await move_keyboard()
-            await message.answer(text, reply_markup=keyboard)
+            try:
+                await message.answer(text, reply_markup=keyboard)
+            except:
+                text = "To'lovlar tarixi bo'limi\n"
+                i = 1
+                for order in orders:
+                    datetime_obj = datetime.strptime(order['chequeDate'].split('.')[0], "%Y-%m-%dT%H:%M:%S")
+                    formatted_datetime = datetime_obj.strftime("%d.%m.%Y %H:%M")
+                    text += f"\n\n{i}) 📆 Sana: {formatted_datetime}\n    💲 Jami: {order['totalAmount']}"
+                    i += 1
+                await state.update_data(index=i, page=page, back_index=1, len_last_orders=len(orders))
+                await message.answer(text, reply_markup=keyboard)
             await state.set_state('order_history')
         else:
             keyboard = await menu_keyboard()
@@ -155,10 +166,19 @@ async def order_history(call: types.CallbackQuery, state: FSMContext):
                     text += f"\n      {order_detail['name']} ✖️ {order_detail['quantity']}\n      Summa: {order_detail['amount']}"
                 indexation += 1
             back_index = indexation - int(len_last_orders) - int(len(orders))
+            keyboard = await move_keyboard()
+            try:
+                await call.message.edit_text(text, reply_markup=keyboard)
+            except:
+                text = "🛒 Xaridlaringiz \n"
+                for order in orders:
+                    datetime_obj = datetime.strptime(order['chequeDate'].split('.')[0], "%Y-%m-%dT%H:%M:%S")
+                    formatted_datetime = datetime_obj.strftime("%d.%m.%Y %H:%M")
+                    text += f"\n\n{indexation}) 📆 Sana: {formatted_datetime}\n    💲 Jami: {order['totalAmount']}"
+                    indexation += 1
+                back_index = indexation - int(len_last_orders) - int(len(orders))
             await state.update_data(index=indexation, page=pagination, back_index=back_index,
                                     len_last_orders=len(orders))
-            keyboard = await move_keyboard()
-            await call.message.edit_text(text, reply_markup=keyboard)
         else:
             orders = await get_user_orders(phone=user.phone, page=0)
             page = 0
@@ -172,10 +192,21 @@ async def order_history(call: types.CallbackQuery, state: FSMContext):
                         text += f"\n      {order_detail['name']} ✖️ {order_detail['quantity']}\n      Summa: {order_detail['amount']}"
                     i += 1
                 back_index = indexation - int(len_last_orders) - int(len(orders))
+                keyboard = await move_keyboard()
+                try:
+                    await call.message.edit_text(text, reply_markup=keyboard)
+                except:
+                    text = "🛒 Xaridlaringiz \n"
+                    for order in orders:
+                        datetime_obj = datetime.strptime(order['chequeDate'].split('.')[0], "%Y-%m-%dT%H:%M:%S")
+                        formatted_datetime = datetime_obj.strftime("%d.%m.%Y %H:%M")
+                        text += f"\n\n{i}) 📆 Sana: {formatted_datetime}\n    💲 Jami: {order['totalAmount']}"
+                        i += 1
+                    back_index = indexation - int(len_last_orders) - int(len(orders))
+                    await call.message.edit_text(text, reply_markup=keyboard)
                 await state.update_data(index=indexation, page=pagination, back_index=back_index,
                                         len_last_orders=len(orders))
-                keyboard = await move_keyboard()
-                await call.message.edit_text(text, reply_markup=keyboard)
+
     if call.data == 'back':
         pagination = pagination - 1 if pagination != 0 else 0
         orders = await get_user_orders(phone=user.phone, page=pagination)
