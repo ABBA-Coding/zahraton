@@ -139,7 +139,7 @@ def get_user_orders(phone, page):
     for key in keys:
         data = {
             "key": key,
-            "phone": phone
+            "phone": '998993999966'
         }
         response = requests.post(url, json=data)
         orders += response.json()
