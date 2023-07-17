@@ -13,9 +13,9 @@ async def menu(message: types.Message, state: FSMContext):
     user = await get_user(user_id=message.from_user.id)
     if message.text == "Mening hisobim/Bonuslarim":
         keyboard = await menu_keyboard()
-        orders_m = 0
         cashbacks = await get_user_balance(user.phone)
-        text = f"\n\nHozirgi keshbek: {cashbacks['balance']}"
+        formatted_total = "{:,.3f}".format(float(cashbacks['balance']) / 1000).replace(",", ".") if cashbacks['balance'] >= 1000 else int(cashbacks['balance'])
+        text = f"\n\n💵 Hozirgi keshbek: <b>{formatted_total}</b> UZS"
         await message.answer(text, reply_markup=keyboard)
     if message.text == "Joriy aksiyalar":
         await state.update_data(sale_id=0)
@@ -40,8 +40,10 @@ async def menu(message: types.Message, state: FSMContext):
         q.save('qrcode.png')
         keyboard = await menu_keyboard()
         photo = open('qrcode.png', 'rb')
+        formatted_total = "{:,.3f}".format(float(balance['balance']) / 1000).replace(",", ".") if balance['balance'] >= 1000 else int(balance['balance'])
+
         await message.answer_photo(photo=photo, caption=f"Sizning keshbekingizni ishlatish uchun QR kodingiz "
-                                                        f"👆\n\nHozirgi keshbekingiz: {balance['balance']} UZS",
+                                                        f"👆\n\n💵 Hozirgi keshbekingiz: <b>{formatted_total}</b> UZS",
                                    reply_markup=keyboard)
     if message.text == "To'lovlar tarixi":
         await message.answer(text='⏳')
@@ -271,7 +273,6 @@ async def get_year(call: types.CallbackQuery, state: FSMContext):
 
                 text += f"\n🛒 {order_detail['name']} ✖️ {order_detail['quantity']} = <b>{formatted_amount}</b> UZS\n"
             formatted_total = "{:,.3f}".format(float(order['totalAmount']) / 1000).replace(",", ".") if order['totalAmount'] >= 1000 else int(order['totalAmount'])
-            print(order['writeOff'])
             formatted_bonus = "{:,.3f}".format(float(order['writeOff']) / 1000).replace(",", ".") if order['writeOff'] >= 1000 else int(order['writeOff'])
             text += f"\n\n💲 <b>Jami</b>: <b>{formatted_total}</b> UZS" \
                     f"\n💳 <b>Bonus orqali to'langan summa</b>: {formatted_bonus} UZS\n"
