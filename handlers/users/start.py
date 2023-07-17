@@ -59,7 +59,7 @@ async def get_name(message: types.Message, state: FSMContext):
         await message.answer('Iltimos manzilingizni kiriting 👇', reply_markup=keyboard)
         await state.set_state('get_location')
     else:
-        await message.answer('Iltimos tug\'ilgan sanangizni <b>1980-12-24</b> shaklida kiriting kiriting 👇',
+        await message.answer('Iltimos tug\'ilgan sanangizni <b>1980-12-24</b>(yil-oy-kun) shaklida kiriting kiriting 👇',
                              reply_markup=ReplyKeyboardRemove())
 
 
