@@ -2,6 +2,7 @@ from asgiref.sync import sync_to_async
 from apps.telegram_bot.models import TelegramUser as User
 from apps.main.models import Sale, Comment, News
 import requests
+import json
 
 
 @sync_to_async
@@ -131,16 +132,62 @@ def get_user_balance(phone):
 
 
 @sync_to_async
-def get_user_orders(phone, page):
+def get_user_orders(phone, page=None):
     keys = ['e67ab364-bc13-11ec-8a51-0242ac12000d', 'e67ab364-bc13-11ec-8a51-0242ac12000d',
             '340c3b26-59ac-11ed-91c5-0242ac12000f', 'b97c33b0-40e8-11ed-9ade-0242ac120008']
-    url = f"https://cabinet.cashbek.uz/services/gocashapi/api/cheque-pageList?page={page}&size=3"
+    url = f"https://cabinet.cashbek.uz/services/gocashapi/api/cheque-pageList"
     orders = []
     for key in keys:
         data = {
             "key": key,
-            "phone": '998993999966'
+            "phone": phone
         }
         response = requests.post(url, json=data)
         orders += response.json()
+        filename = f'./jsons/{phone}.json'
+        with open(filename, 'w') as file:
+            json.dump(orders, file)
     return orders
+
+
+@sync_to_async
+def get_order_years(phone):
+    with open(f'./jsons/{phone}.json') as file:
+        data = json.load(file)
+
+    years = set()
+    for obj in data:
+        cheque_date = obj['chequeDate']
+        year = cheque_date[:4]
+        years.add(year)
+    return list(years)
+
+
+@sync_to_async
+def get_order_month(phone, year):
+    with open(f'./jsons/{phone}.json') as file:
+        data = json.load(file)
+
+    months = set()
+    for obj in data:
+        cheque_date = obj['chequeDate']
+        order_year = cheque_date[:4]
+        if order_year == year:
+            month = cheque_date[5:7]
+            months.add(month)
+    return list(months)
+
+
+@sync_to_async
+def get_orders_by_month(phone, year, month):
+    with open(f'./jsons/{phone}.json') as file:
+        data = json.load(file)
+    orders = []
+    for obj in data:
+        cheque_date = obj['chequeDate']
+        order_year = cheque_date[:4]
+        order_month = cheque_date[5:7]
+        if year == order_year and month == order_month:
+            orders.append(obj)
+    return orders
+

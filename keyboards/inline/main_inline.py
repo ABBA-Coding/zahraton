@@ -47,14 +47,23 @@ async def year_keyboard(years):
     return markup
 
 
-Moths = {1: 'Yanvar', 2: 'Fevral', 3: 'Mart', 4: 'Aprel', 5: 'May', 6: 'Iyun', 7: 'Iyul', 8: 'Avgust', 9: 'Sentabr',
-         10: 'Oktyabr', 11: 'Noyabr', 12: 'Dekabr', }
+Moths = {'01': 'Yanvar', '02': 'Fevral', '03': 'Mart', '04': 'Aprel', '05': 'May', '06': 'Iyun', '07': 'Iyul',
+         '08': 'Avgust', '09': 'Sentabr', '10': 'Oktyabr', '11': 'Noyabr', '12': 'Dekabr', }
 
 
 async def month_keyboard(date):
     inline_keyboard = []
+    row = []
+    count = 0
     for i in date:
-        inline_keyboard.append([InlineKeyboardButton(text=f"{Moths[i]}", callback_data=i)])
-    inline_keyboard.append([InlineKeyboardButton(text="🔙 Orqaga", callback_data=f"back_menu")])
+        row.append(InlineKeyboardButton(text=f"{Moths[i]}", callback_data=i))
+        count += 1
+        if count == 3:
+            inline_keyboard.append(row)
+            row = []
+            count = 0
+    if row:
+        inline_keyboard.append(row)
+    inline_keyboard.append([InlineKeyboardButton(text="🔙 Orqaga", callback_data="back_menu")])
     markup = InlineKeyboardMarkup(inline_keyboard=inline_keyboard)
     return markup
