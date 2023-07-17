@@ -210,7 +210,8 @@ async def order_history(call: types.CallbackQuery, state: FSMContext):
             for order in orders:
                 datetime_obj = datetime.strptime(order['chequeDate'].split('.')[0], "%Y-%m-%dT%H:%M:%S")
                 formatted_datetime = datetime_obj.strftime("%d.%m.%Y %H:%M")
-                text += f"\n\n{indexation}) 📆 Sana: {formatted_datetime}\n    💲 Jami: {order['totalAmount']}"
+                text += f"\n\n{indexation}) 📆 Sana: {formatted_datetime}\n    💲 Jami: {order['totalAmount']}" \
+                        f"\n    ❇️ Bonus orqali to'langan summa: {order['writeOff']}"
                 for order_detail in order['products']:
                     text += f"\n      {order_detail['name']} ✖️ {order_detail['quantity']}\n      Summa: {order_detail['amount']}"
                 indexation += 1
