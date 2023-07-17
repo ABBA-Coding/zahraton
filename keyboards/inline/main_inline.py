@@ -26,7 +26,9 @@ async def sale_confirm(sale_id):
 async def oferta_confirm():
     markup = InlineKeyboardMarkup(
         inline_keyboard=[
-            [InlineKeyboardButton(text=f"Ommaviy oferta shartnomasi", url=f"https://kun.uz/")],
+            [InlineKeyboardButton(text=f"Sodiqlik dasturi qoidalari",
+                                  url=f"https://docs.google.com/document/d"
+                                      f"/1GrgAg41OZ_w8FAv6SOCEa7FMknGOPFiBTF_75QpD6zQ/edit?usp=sharing")],
             [
                 InlineKeyboardButton(text=f"✅ Roziman", callback_data=f"confirm"),
                 InlineKeyboardButton(text=f"❌ Rad etish", callback_data="cancel")
