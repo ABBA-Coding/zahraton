@@ -55,6 +55,9 @@ def get_news(user_id):
     user = User.objects.filter(telegram_id=user_id).first()
     news = []
     for new in News.objects.all().order_by('-id'):
+        if new.max_age == 0:
+            new.max_age = 1000
+            new.save()
         if new.check_user(age=user.age, gender=user.gender):
             news.append(new)
     return news
