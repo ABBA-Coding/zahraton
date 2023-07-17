@@ -56,7 +56,8 @@ async def menu(message: types.Message, state: FSMContext):
             for order in orders:
                 datetime_obj = datetime.strptime(order['chequeDate'].split('.')[0], "%Y-%m-%dT%H:%M:%S")
                 formatted_datetime = datetime_obj.strftime("%d.%m.%Y %H:%M")
-                text += f"\n\n{i}) 📆 Sana: {formatted_datetime}\n    💲 Jami: {order['totalAmount']}"
+                text += f"\n\n{i}) 📆 Sana: {formatted_datetime}\n    💲 Jami: {order['totalAmount']}" \
+                        f"\n    ❇️ Bonus orqali to'langan summa: {order['writeOff']}"
                 for order_detail in order['products']:
                     text += f"\n      {order_detail['name']} ✖️ {order_detail['quantity']}\n      Summa: {order_detail['amount']}"
                 i += 1
@@ -65,15 +66,9 @@ async def menu(message: types.Message, state: FSMContext):
             try:
                 await message.answer(text, reply_markup=keyboard)
             except:
-                text = "To'lovlar tarixi bo'limi\n"
-                i = 1
-                for order in orders:
-                    datetime_obj = datetime.strptime(order['chequeDate'].split('.')[0], "%Y-%m-%dT%H:%M:%S")
-                    formatted_datetime = datetime_obj.strftime("%d.%m.%Y %H:%M")
-                    text += f"\n\n{i}) 📆 Sana: {formatted_datetime}\n    💲 Jami: {order['totalAmount']}"
-                    i += 1
-                await state.update_data(index=i, page=page, back_index=1, len_last_orders=len(orders))
-                await message.answer(text, reply_markup=keyboard)
+                await message.answer(text[:4000])
+                await message.answer(text[4000:], reply_markup=keyboard)
+
             await state.set_state('order_history')
         else:
             keyboard = await menu_keyboard()
@@ -150,6 +145,11 @@ async def news_handler(call: types.CallbackQuery, state: FSMContext):
 
 @dp.callback_query_handler(state="order_history")
 async def order_history(call: types.CallbackQuery, state: FSMContext):
+    try:
+        await bot.delete_message(chat_id=call.from_user.id, message_id=call.message.message_id-1)
+    except:
+        pass
+
     data = await state.get_data()
     indexation = int(data['index'])
     len_last_orders = data['len_last_orders']
@@ -163,7 +163,8 @@ async def order_history(call: types.CallbackQuery, state: FSMContext):
             for order in orders:
                 datetime_obj = datetime.strptime(order['chequeDate'].split('.')[0], "%Y-%m-%dT%H:%M:%S")
                 formatted_datetime = datetime_obj.strftime("%d.%m.%Y %H:%M")
-                text += f"\n\n{indexation}) 📆 Sana: {formatted_datetime}\n    💲 Jami: {order['totalAmount']}"
+                text += f"\n\n{indexation}) 📆 Sana: {formatted_datetime}\n    💲 Jami: {order['totalAmount']}" \
+                        f"\n    ❇️ Bonus orqali to'langan summa: {order['writeOff']}"
                 for order_detail in order['products']:
                     text += f"\n      {order_detail['name']} ✖️ {order_detail['quantity']}\n      Summa: {order_detail['amount']}"
                 indexation += 1
@@ -172,13 +173,10 @@ async def order_history(call: types.CallbackQuery, state: FSMContext):
             try:
                 await call.message.edit_text(text, reply_markup=keyboard)
             except:
-                text = "🛒 Xaridlaringiz \n"
-                for order in orders:
-                    datetime_obj = datetime.strptime(order['chequeDate'].split('.')[0], "%Y-%m-%dT%H:%M:%S")
-                    formatted_datetime = datetime_obj.strftime("%d.%m.%Y %H:%M")
-                    text += f"\n\n{indexation}) 📆 Sana: {formatted_datetime}\n    💲 Jami: {order['totalAmount']}"
-                    indexation += 1
-                back_index = indexation - int(len_last_orders) - int(len(orders))
+                await call.message.delete()
+                await bot.send_message(chat_id=call.from_user.id, text=text[:4000])
+                await bot.send_message(chat_id=call.from_user.id, text=text[4000:], reply_markup=keyboard)
+
             await state.update_data(index=indexation, page=pagination, back_index=back_index,
                                     len_last_orders=len(orders))
         else:
@@ -189,7 +187,8 @@ async def order_history(call: types.CallbackQuery, state: FSMContext):
                 for order in orders:
                     datetime_obj = datetime.strptime(order['chequeDate'].split('.')[0], "%Y-%m-%dT%H:%M:%S")
                     formatted_datetime = datetime_obj.strftime("%d.%m.%Y %H:%M")
-                    text += f"\n\n{i}) 📆 Sana: {formatted_datetime}\n    💲 Jami: {order['totalAmount']}"
+                    text += f"\n\n{i}) 📆 Sana: {formatted_datetime}\n    💲 Jami: {order['totalAmount']}" \
+                            f"\n    ❇️ Bonus orqali to'langan summa: {order['writeOff']}"
                     for order_detail in order['products']:
                         text += f"\n      {order_detail['name']} ✖️ {order_detail['quantity']}\n      Summa: {order_detail['amount']}"
                     i += 1
@@ -198,17 +197,11 @@ async def order_history(call: types.CallbackQuery, state: FSMContext):
                 try:
                     await call.message.edit_text(text, reply_markup=keyboard)
                 except:
-                    text = "🛒 Xaridlaringiz \n"
-                    for order in orders:
-                        datetime_obj = datetime.strptime(order['chequeDate'].split('.')[0], "%Y-%m-%dT%H:%M:%S")
-                        formatted_datetime = datetime_obj.strftime("%d.%m.%Y %H:%M")
-                        text += f"\n\n{i}) 📆 Sana: {formatted_datetime}\n    💲 Jami: {order['totalAmount']}"
-                        i += 1
-                    back_index = indexation - int(len_last_orders) - int(len(orders))
-                    await call.message.edit_text(text, reply_markup=keyboard)
+                    await call.message.delete()
+                    await bot.send_message(chat_id=call.from_user.id, text=text[:4000])
+                    await bot.send_message(chat_id=call.from_user.id, text=text[4000:], reply_markup=keyboard)
                 await state.update_data(index=indexation, page=pagination, back_index=back_index,
                                         len_last_orders=len(orders))
-
     if call.data == 'back':
         pagination = pagination - 1 if pagination != 0 else 0
         orders = await get_user_orders(phone=user.phone, page=pagination)
@@ -222,10 +215,15 @@ async def order_history(call: types.CallbackQuery, state: FSMContext):
                     text += f"\n      {order_detail['name']} ✖️ {order_detail['quantity']}\n      Summa: {order_detail['amount']}"
                 indexation += 1
             back_index = indexation - int(len_last_orders) - int(len(orders))
+            keyboard = await move_keyboard()
+            try:
+                await call.message.edit_text(text, reply_markup=keyboard)
+            except:
+                await call.message.delete()
+                await bot.send_message(chat_id=call.from_user.id, text=text[:4000])
+                await bot.send_message(chat_id=call.from_user.id, text=text[4000:], reply_markup=keyboard)
             await state.update_data(index=indexation, page=pagination, back_index=back_index,
                                     len_last_orders=len(orders))
-            keyboard = await move_keyboard()
-            await call.message.edit_text(text, reply_markup=keyboard)
 
 
 
