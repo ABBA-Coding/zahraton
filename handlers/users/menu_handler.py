@@ -44,11 +44,11 @@ async def menu(message: types.Message, state: FSMContext):
                                                         f"👆\n\nHozirgi keshbekingiz: {balance['balance']} UZS",
                                    reply_markup=keyboard)
     if message.text == "To'lovlar tarixi":
+        await message.answer(text='⏳')
         user = await get_user(message.from_user.id)
         await get_user_orders(phone=user.phone)
         years = await get_order_years(user.phone)
-        text = "To'lovlar tarixi bo'limi\n\n"
-        await message.answer(text, reply_markup=ReplyKeyboardRemove())
+        await bot.delete_message(chat_id=message.from_user.id, message_id=message.message_id + 1)
         markup = await year_keyboard(years)
         await message.answer(text='Kerakli yilni tanlang 👇', reply_markup=markup)
         await state.set_state('get_year_')
@@ -265,10 +265,11 @@ async def get_year(call: types.CallbackQuery, state: FSMContext):
             text = ''
             datetime_obj = datetime.strptime(order['chequeDate'].split('.')[0], "%Y-%m-%dT%H:%M:%S")
             formatted_datetime = datetime_obj.strftime("%d.%m.%Y %H:%M")
-            text += f"\n\n{i}) 📆 Sana: {formatted_datetime}\n    💲 Jami: {order['totalAmount']}" \
-                    f"\n    ❇️ Bonus orqali to'langan summa: {order['writeOff']}\n"
+            text += f"\n\n{i}) 📆 <b>Sana</b>: {formatted_datetime}\n"
             for order_detail in order['products']:
-                text += f"\n        {order_detail['name']} ✖️ {order_detail['quantity']}\n          Summa: {order_detail['amount']}"
+                text += f"\n🛒 {order_detail['name']} ✖️ {order_detail['quantity']} = <b>{order_detail['amount']}</b> UZS\n"
+            text += f"\n\n💲 <b>Jami</b>: {order['totalAmount']} UZS" \
+                    f"\n💳 <b>Bonus orqali to'langan summa</b>: {order['writeOff']}\n"
             i += 1
             chunks = [text[i:i+4096] for i in range(0, len(text), 4096)]
             for chunk in chunks:
