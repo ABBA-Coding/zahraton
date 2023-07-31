@@ -3,6 +3,8 @@ from apps.authentication.models import MegaUser as User
 from apps.home.models import BaseModel
 from datetime import datetime, timedelta
 from apps.telegram_bot.models import TelegramUser
+from urllib.parse import unquote
+
 
 MONTH, SEASON, YEAR = (
     "month",
@@ -32,6 +34,14 @@ class Sale(BaseModel):
         except:
             return ''
 
+    @property
+    def ImageURL(self):
+        try:
+            decoded_url = unquote(self.image.url)
+            return decoded_url
+        except:
+            return ''
+
 
 class News(BaseModel):
     GENDER = (
@@ -53,6 +63,14 @@ class News(BaseModel):
     def PhotoURL(self):
         try:
             return self.image.url
+        except:
+            return ''
+
+    @property
+    def ImageURL(self):
+        try:
+            decoded_url = unquote(self.image.url)
+            return decoded_url
         except:
             return ''
 
