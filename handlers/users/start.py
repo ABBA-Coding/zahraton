@@ -26,7 +26,10 @@ async def start_func(message: types.Message, state: FSMContext):
     user = await get_user(message.from_user.id)
     if user is not None:
         keyboard = await menu_keyboard()
-        await message.answer("Bosh menyuga xush kelibsiz. Kerakli tugmani tanlang.", reply_markup=keyboard)
+        await message.answer("Zahratun supermarket botiga xush kelibsiz.\n\nBotda aksiyalar, yangiliklar, Zahratun "
+                             "kartangiz balansi, foydali ma’lumotlar va izoh bildirish bo’limini topa olasiz. \n\n"
+                             "Oilamizga marhamat 💚",
+                             reply_markup=keyboard)
         await state.set_state("user_menu")
     else:
         await message.answer("👋 Assalomu alaykum\nZahratun botiga xush kelibsiz. Iltimos ism, sharifingizni kiriting",

@@ -23,16 +23,17 @@ async def menu(message: types.Message, state: FSMContext):
         back_keyboard = await back_key()
         await message.answer("Hozirda aktiv bo'lgan aksiyalar 👇", reply_markup=back_keyboard)
         sale = await get_active_sales_all()
+        await state.set_state('aksiya')
         if sale:
             sale = sale[0]
             text = f"🔥 {sale.name}\n\n 🎁{sale.description} "
             keyboard = await move_keyboard()
             photo = open(f".{sale.PhotoURL}", 'rb')
             await message.answer_photo(photo=photo, caption=text, reply_markup=keyboard)
-            await state.set_state('aksiya')
     if message.text == "Izoh qoldirish":
         keyboard = await back_key()
-        await message.answer("Iltimos o'z izohingizni shu yerda yozib qoldiring 👇\nMutaxassislarimiz o'rganib chiqib tez orada sizga javob berishadi",
+        await message.answer("Iltimos o'z izohingizni shu yerda yozib qoldiring 👇\nMutaxassislarimiz o'rganib chiqib "
+                             "tez orada sizga javob berishadi",
                              reply_markup=keyboard)
         await state.set_state("get_comment")
     if message.text == 'QrCode':
