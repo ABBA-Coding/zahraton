@@ -5,6 +5,7 @@ from keyboards.inline.menu_button import *
 from keyboards.inline.main_inline import *
 from utils.db_api.database import *
 import qrcode
+from aiogram.types import InputFile
 
 
 @dp.message_handler(state='user_menu')
@@ -26,8 +27,9 @@ async def menu(message: types.Message, state: FSMContext):
             sale = sale[0]
             text = f"🔥 {sale.name}\n\n 🎁{sale.description} "
             keyboard = await move_keyboard()
-            await message.answer(text, reply_markup=keyboard)
-        await state.set_state('aksiya')
+            photo = open(f".{sale.PhotoURL}", 'rb')
+            await message.answer_photo(photo=photo, caption=text, reply_markup=keyboard)
+            await state.set_state('aksiya')
     if message.text == "Izoh qoldirish":
         keyboard = await back_key()
         await message.answer("Iltimos o'z izohingizni shu yerda yozib qoldiring 👇\nMutaxassislarimiz o'rganib chiqib tez orada sizga javob berishadi",
@@ -94,7 +96,8 @@ async def menu(message: types.Message, state: FSMContext):
             news = news[0]
             text = f"🔥 {news.name}\n\n{news.description} "
             keyboard = await move_keyboard()
-            await message.answer(text, reply_markup=keyboard)
+            photo = open(f".{news.PhotoURL}", 'rb')
+            await message.answer_photo(photo=photo, caption=text, reply_markup=keyboard)
 
 
 @dp.message_handler(state="get_comment")
@@ -129,8 +132,17 @@ async def aksiya_handler(call: types.CallbackQuery, state: FSMContext):
     sale = sale[indexation]
     text = f"🔥 {sale.name}\n\n 🎁 {sale.description}"
     keyboard = await move_keyboard()
+    photo = open(f".{sale.PhotoURL}", 'rb')
+    text = f"🔥 {sale.name}\n\n 🎁 {sale.description}"
+    keyboard = await move_keyboard()
     await state.update_data(sale_id=indexation)
-    await call.message.edit_text(text, reply_markup=keyboard)
+    await bot.edit_message_media(media=types.InputMediaPhoto(media=InputFile(photo)),
+                                 chat_id=call.from_user.id,
+                                 message_id=call.message.message_id)
+    await bot.edit_message_caption(chat_id=call.from_user.id,
+                                   message_id=call.message.message_id,
+                                   caption=text,
+                                   reply_markup=keyboard)
     await state.set_state('aksiya')
 
 
@@ -144,12 +156,18 @@ async def news_handler(call: types.CallbackQuery, state: FSMContext):
     elif call.data == "back":
         indexation = (indexation - 1) % len(news)
     news = news[indexation]
+    await state.update_data(new_id=indexation)
+    photo = open(f".{news.PhotoURL}", 'rb')
     text = f"🔥 {news.name}\n\n{news.description}"
     keyboard = await move_keyboard()
-    await state.update_data(new_id=indexation)
-    await call.message.edit_text(text, reply_markup=keyboard)
+    await bot.edit_message_media(media=types.InputMediaPhoto(media=InputFile(photo)),
+                                 chat_id=call.from_user.id,
+                                 message_id=call.message.message_id)
+    await bot.edit_message_caption(chat_id=call.from_user.id,
+                                   message_id=call.message.message_id,
+                                   caption=text,
+                                   reply_markup=keyboard)
     await state.set_state('news_move')
-
 
 # @dp.callback_query_handler(state="order_history")
 # async def order_history(call: types.CallbackQuery, state: FSMContext):
