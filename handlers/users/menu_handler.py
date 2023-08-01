@@ -109,8 +109,8 @@ async def get_comment(message: types.Message, state: FSMContext):
     user = await get_user(message.from_user.id)
     text = ''
     if message.text:
-        text += f"👤 Telefon raqam: +{message.from_user.username}\n" if message.from_user.username is not None else f"👤 Telefon raqam: T.me/+{user.phone}\n"
-        text += f"👤 Telefon raqam: +{user.phone}\n✍️ Xabar: <b>{message.text}</b>"
+        text += f"👤 Foydalanuvchi: @{message.from_user.username}\n" if message.from_user.username is not None else f"👤 Telefon raqam: T.me/+{user.phone}\n"
+        text += f"\n✍️ Xabar: <b>{message.text}</b>"
     else:
         text += f"👤 Telefon raqam: +{message.from_user.username}\n" if message.from_user.username is not None else f"👤 Telefon raqam: T.me/+{user.phone}\n"
     if message.photo:
