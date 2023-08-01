@@ -41,10 +41,10 @@ async def back_key():
 
 async def menu_keyboard():
     keyboard = ReplyKeyboardMarkup(row_width=2)
-    key1 = KeyboardButton(text=f"Mening hisobim/Bonuslarim")
-    key2 = KeyboardButton(text=f"QrCode")
-    key3 = KeyboardButton(text=f"Joriy aksiyalar")
-    key4 = KeyboardButton(text=f"To'lovlar tarixi")
+    key1 = KeyboardButton(text=f"💰 Mening hisobim (bonuslarim)")
+    key2 = KeyboardButton(text=f"🔄 QR kod")
+    key3 = KeyboardButton(text=f"🎁 Aksiyalar")
+    key4 = KeyboardButton(text=f"💳 To'lovlar tarixi")
     key5 = KeyboardButton(text=f"Yangiliklar")
     key6 = KeyboardButton(text=f"Taklif va shikoyatlar")
     keyboard.add(key1, key2, key3, key4, key5, key6)

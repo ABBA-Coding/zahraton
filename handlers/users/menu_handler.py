@@ -12,13 +12,13 @@ from aiogram.types import InputFile
 async def menu(message: types.Message, state: FSMContext):
     await state.update_data(action='menu')
     user = await get_user(user_id=message.from_user.id)
-    if message.text == "Mening hisobim/Bonuslarim":
+    if message.text == "💰 Mening hisobim (bonuslarim)":
         keyboard = await menu_keyboard()
         cashbacks = await get_user_balance(user.phone)
         formatted_total = "{:,.3f}".format(float(cashbacks['balance']) / 1000).replace(",", ".") if cashbacks['balance'] >= 1000 else int(cashbacks['balance'])
         text = f"\n\n💵 Hozirgi keshbek: <b>{formatted_total}</b> UZS"
         await message.answer(text, reply_markup=keyboard)
-    if message.text == "Joriy aksiyalar":
+    if message.text == "🎁 Aksiyalar":
         await state.update_data(sale_id=0)
         back_keyboard = await back_key()
         await message.answer("Hozirda aktiv bo'lgan aksiyalar 👇", reply_markup=back_keyboard)
@@ -30,14 +30,14 @@ async def menu(message: types.Message, state: FSMContext):
             keyboard = await move_keyboard()
             photo = open(f"/var/www/zahraton.itlink.uz/media/{sale.ImageURL}", 'rb')
             await message.answer_photo(photo=photo, caption=text, reply_markup=keyboard)
-    if message.text == "Taklif va shikoyatlar":
+    if message.text == "📝 Taklif va shikoyatlar":
         keyboard = await back_key()
         await message.answer("Iltimos taklif va shikoyatlaringiz haqida imkon boricha batafsil so‘zlab bering "
                              "va zarur bo‘lsa surat jo‘nating)\n\nHar bir taklif va shikoyatingiz biz uchun juda "
                              "katta ahamiyatga ega. Xabaringiz javobsiz qolmaydi.",
                              reply_markup=keyboard)
         await state.set_state("get_comment")
-    if message.text == 'QrCode':
+    if message.text == '🔄 QR kod':
         balance = await get_user_balance(user.phone)
         user_uuid = get_api_uuid(user.phone)
         q = qrcode.make(f'{user_uuid}')
@@ -49,7 +49,7 @@ async def menu(message: types.Message, state: FSMContext):
         await message.answer_photo(photo=photo, caption=f"Sizning keshbekingizni ishlatish uchun QR kodingiz "
                                                         f"👆\n\n💵 Hozirgi keshbekingiz: <b>{formatted_total}</b> UZS",
                                    reply_markup=keyboard)
-    if message.text == "To'lovlar tarixi":
+    if message.text == "💳 To'lovlar tarixi":
         await message.answer(text='⏳', reply_markup=ReplyKeyboardRemove())
         user = await get_user(message.from_user.id)
         await get_user_orders(phone=user.phone)
@@ -88,7 +88,7 @@ async def menu(message: types.Message, state: FSMContext):
         #     await message.answer(text, reply_markup=keyboard)
         #     await state.set_state('user_menu')
 
-    if message.text == "Yangiliklar":
+    if message.text == "📰 Yangiliklar":
         await state.update_data(new_id=0)
         back_keyboard = await back_key()
         await message.answer("💥 Yangiliklar 👇", reply_markup=back_keyboard)
