@@ -45,8 +45,8 @@ async def menu_keyboard():
     key2 = KeyboardButton(text=f"🔄 QR kod")
     key3 = KeyboardButton(text=f"🎁 Aksiyalar")
     key4 = KeyboardButton(text=f"💳 To'lovlar tarixi")
-    key5 = KeyboardButton(text=f"Yangiliklar")
-    key6 = KeyboardButton(text=f"Taklif va shikoyatlar")
+    key5 = KeyboardButton(text=f"📰 Yangiliklar")
+    key6 = KeyboardButton(text=f"📝 Taklif va shikoyatlar")
     keyboard.add(key1, key2, key3, key4, key5, key6)
     keyboard.resize_keyboard = True
     return keyboard
