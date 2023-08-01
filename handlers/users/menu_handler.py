@@ -103,13 +103,14 @@ async def menu(message: types.Message, state: FSMContext):
             await message.answer_photo(photo=photo, caption=text, reply_markup=keyboard)
 
 
-@dp.message_handler(state="get_comment")
+@dp.message_handler(state="get_comment", content_types=types.ContentType.ANY)
 async def get_comment(message: types.Message, state: FSMContext):
     # await add_comment(user_id=message.from_user.id, comment=message.text)
     user = await get_user(message.from_user.id)
     text = ''
     if message.text:
-        text += f"👤 Foydalanuvchi: @{message.from_user.username}\n" if message.from_user.username is not None else f"👤 Telefon raqam: T.me/+{user.phone}\n"
+        text += f"👤 Foydalanuvchi: @{message.from_user.username}\n" if message.from_user.username is not None else ""
+        text += f"👤 Telefon raqam: T.me/+{user.phone}\n"
         text += f"\n✍️ Xabar: <b>{message.text}</b>"
     else:
         text += f"👤 Telefon raqam: +{message.from_user.username}\n" if message.from_user.username is not None else f"👤 Telefon raqam: T.me/+{user.phone}\n"
