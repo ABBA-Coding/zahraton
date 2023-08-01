@@ -25,6 +25,16 @@ async def back_funcktion(message: types.Message, state: FSMContext):
     await state.set_state("user_menu")
 
 
+@dp.message_handler(lambda message: message.text == '⬅️ Orqaga', state='get_comment_caption_photo')
+async def back_funcktion(message: types.Message, state: FSMContext):
+    keyboard = await back_key()
+    await message.answer("Iltimos taklif va shikoyatlaringiz haqida imkon boricha batafsil so‘zlab bering "
+                         "va zarur bo‘lsa surat jo‘nating)\n\nHar bir taklif va shikoyatingiz biz uchun juda "
+                         "katta ahamiyatga ega. Xabaringiz javobsiz qolmaydi.",
+                         reply_markup=keyboard)
+    await state.set_state("get_comment")
+
+
 @dp.message_handler(lambda message: message.text == '⬅️ Orqaga', state='order_history')
 async def back_funcktion(message: types.Message, state: FSMContext):
     keyboard = await menu_keyboard()

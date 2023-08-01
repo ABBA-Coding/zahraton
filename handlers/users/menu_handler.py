@@ -104,23 +104,107 @@ async def menu(message: types.Message, state: FSMContext):
 
 @dp.message_handler(state="get_comment", content_types=types.ContentType.ANY)
 async def get_comment(message: types.Message, state: FSMContext):
-    # await add_comment(user_id=message.from_user.id, comment=message.text)
     user = await get_user(message.from_user.id)
+    if message.photo:
+        photo = message.photo[-1].file_id
+        await state.update_data(photo_id=photo)
+        if message.caption:
+            text = ''
+            text += f"👤 Mijoz: {user.full_name}\n"
+            text += f"👤 Profil: @{message.from_user.username}\n" if message.from_user.username is not None else f"👤 Profil: T.me/+{user.phone}\n"
+            text += f"📞 Telefon raqam: +{user.phone}\n"
+            text += f"\n✍️ Xabar: <b>{message.caption}</b>"
+            keyboard = await menu_keyboard()
+            await bot.send_photo(photo=photo, chat_id=-1001669827084, caption=text)
+            await message.answer("Murojaatingiz o'rganish uchun mutaxassisimizga yetkazildi\n"
+                                 "Kerakli bo'limni tanlang", reply_markup=keyboard)
+            await state.set_state("user_menu")
+        else:
+            keyboard = await comment_keyboard(type='text')
+            await message.answer(text="Xarabringizga izoh qo'shishni istaysizmi?", reply_markup=keyboard)
+            await state.set_state('get_comment_caption')
+    if message.text:
+        await state.update_data(comment_text=message.text)
+        keyboard = await comment_keyboard(type='photo')
+        await message.answer(text="Xabaringizga rasm qo'shishni istaysizmi?", reply_markup=keyboard)
+        await state.set_state('get_comment_photo')
+
+
+@dp.message_handler(state="get_comment_caption", content_types=types.ContentType.TEXT)
+async def get_comment_last(message: types.Message, state: FSMContext):
+    user = await get_user(message.from_user.id)
+    if message.text == "✅ Jo'natish":
+        data = await state.get_data()
+        photo = data['photo_id']
+        text = ''
+        text += f"👤 Mijoz: {user.full_name}\n"
+        text += f"👤 Profil: @{message.from_user.username}\n" if message.from_user.username is not None else f"👤 Profil: T.me/+{user.phone}\n"
+        text += f"📞 Telefon raqam: +{user.phone}\n"
+        keyboard = await menu_keyboard()
+        await bot.send_photo(photo=photo, chat_id=-1001669827084, caption=text)
+        await message.answer("Murojaatingiz o'rganish uchun mutaxassisimizga yetkazildi\n"
+                             "Kerakli bo'limni tanlang", reply_markup=keyboard)
+        await state.set_state("user_menu")
+    if message.text == "✍️ Izoh qo'shish":
+        keyboard = await back_key()
+        await message.answer(text="Xabaringizni yuboring", reply_markup=keyboard)
+        await state.set_state('get_comment_caption_photo')
+
+
+@dp.message_handler(state="get_comment_photo", content_types=types.ContentType.TEXT)
+async def get_comment_last(message: types.Message, state: FSMContext):
+    user = await get_user(message.from_user.id)
+    if message.text == "✅ Jo'natish":
+        data = await state.get_data()
+        comment = data['comment_text']
+        text = ''
+        text += f"👤 Mijoz: {user.full_name}\n"
+        text += f"👤 Profil: @{message.from_user.username}\n" if message.from_user.username is not None else f"👤 Profil: T.me/+{user.phone}\n"
+        text += f"📞 Telefon raqam: +{user.phone}\n"
+        text += f"\n✍️ Xabar: <b>{comment}</b>"
+        keyboard = await menu_keyboard()
+        await bot.send_message(chat_id=-1001669827084, text=text)
+        await message.answer("Murojaatingiz o'rganish uchun mutaxassisimizga yetkazildi\n"
+                             "Kerakli bo'limni tanlang", reply_markup=keyboard)
+        await state.set_state("user_menu")
+    if message.text == "🖼 Rasm qo'shish":
+        keyboard = await back_key()
+        await message.answer(text="Rasmni yuboring", reply_markup=keyboard)
+        await state.set_state('get_comment_caption_photo')
+
+
+@dp.message_handler(state="get_comment_caption_photo", content_types=types.ContentType.PHOTO)
+async def get_comment_last(message: types.Message, state: FSMContext):
+    user = await get_user(message.from_user.id)
+    photo = message.photo[-1].file_id
+    data = await state.get_data()
+    comment = data['comment_text']
+    await state.update_data(photo_id=photo)
     text = ''
     text += f"👤 Mijoz: {user.full_name}\n"
     text += f"👤 Profil: @{message.from_user.username}\n" if message.from_user.username is not None else f"👤 Profil: T.me/+{user.phone}\n"
     text += f"📞 Telefon raqam: +{user.phone}\n"
-    if message.text:
-        text += f"\n✍️ Xabar: <b>{message.text}</b>"
-    if message.caption:
-        text += f"\n✍️ Xabar: <b>{message.caption}</b>"
-    if message.photo:
-        photo = message.photo[-1].file_id
-        await bot.send_photo(photo=photo, chat_id=-1001669827084, caption=text)
-    else:
-        await bot.send_message(chat_id=-1001669827084, text=text)
-
+    text += f"\n✍️ Xabar: <b>{comment}</b>"
     keyboard = await menu_keyboard()
+    await bot.send_photo(photo=photo, chat_id=-1001669827084, caption=text)
+    await message.answer("Murojaatingiz o'rganish uchun mutaxassisimizga yetkazildi\n"
+                         "Kerakli bo'limni tanlang", reply_markup=keyboard)
+    await state.set_state("user_menu")
+
+
+@dp.message_handler(state="get_comment_caption_photo", content_types=types.ContentType.TEXT)
+async def get_comment_last(message: types.Message, state: FSMContext):
+    user = await get_user(message.from_user.id)
+    data = await state.get_data()
+    photo = data['photo_id']
+    caption = message.text
+    text = ''
+    text += f"👤 Mijoz: {user.full_name}\n"
+    text += f"👤 Profil: @{message.from_user.username}\n" if message.from_user.username is not None else f"👤 Profil: T.me/+{user.phone}\n"
+    text += f"📞 Telefon raqam: +{user.phone}\n"
+    text += f"\n✍️ Xabar: <b>{caption}</b>"
+    keyboard = await menu_keyboard()
+    await bot.send_photo(photo=photo, chat_id=-1001669827084, caption=text)
     await message.answer("Murojaatingiz o'rganish uchun mutaxassisimizga yetkazildi\n"
                          "Kerakli bo'limni tanlang", reply_markup=keyboard)
     await state.set_state("user_menu")

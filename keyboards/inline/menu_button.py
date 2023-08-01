@@ -58,3 +58,13 @@ async def location_send():
     mrk.add(bt)
     return mrk
 
+
+async def comment_keyboard(type):
+    keyboard = ReplyKeyboardMarkup(row_width=2)
+    key1 = KeyboardButton(text=f"✍️ Izoh qo'shish")
+    if type == 'photo':
+        key1 = KeyboardButton(text=f"🖼 Rasm qo'shish")
+    key2 = KeyboardButton(text=f"✅ Jo'natish")
+    keyboard.add(key1, key2)
+    keyboard.resize_keyboard = True
+    return keyboard
