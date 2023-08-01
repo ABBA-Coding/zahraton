@@ -26,7 +26,7 @@ async def menu(message: types.Message, state: FSMContext):
         await state.set_state('aksiya')
         if sale:
             sale = sale[0]
-            print(sale.ImageURL)
+            print("Sale image URL", sale.ImageURL)
             text = f"🔥 {sale.name}\n\n 🎁{sale.description} "
             keyboard = await move_keyboard()
             photo = open(f"{sale.ImageURL}", 'rb')
