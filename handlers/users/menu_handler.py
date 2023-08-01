@@ -107,13 +107,16 @@ async def menu(message: types.Message, state: FSMContext):
 async def get_comment(message: types.Message, state: FSMContext):
     # await add_comment(user_id=message.from_user.id, comment=message.text)
     user = await get_user(message.from_user.id)
+    print(message.caption)
     text = ''
     if message.text:
         text += f"👤 Foydalanuvchi: @{message.from_user.username}\n" if message.from_user.username is not None else ""
         text += f"👤 Telefon raqam: T.me/+{user.phone}\n"
         text += f"\n✍️ Xabar: <b>{message.text}</b>"
-    else:
-        text += f"👤 Telefon raqam: +{message.from_user.username}\n" if message.from_user.username is not None else f"👤 Telefon raqam: T.me/+{user.phone}\n"
+    if message.caption:
+        text += f"👤 Foydalanuvchi: @{message.from_user.username}\n" if message.from_user.username is not None else ""
+        text += f"👤 Telefon raqam: T.me/+{user.phone}\n"
+        text += f"\n✍️ Xabar: <b>{message.caption}</b>"
     if message.photo:
         photo = message.photo[-1].file_id
         await bot.send_photo(photo=photo, chat_id=-1001669827084, caption=text)
