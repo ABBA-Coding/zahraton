@@ -49,7 +49,7 @@ async def menu(message: types.Message, state: FSMContext):
                                                         f"👆\n\n💵 Hozirgi keshbekingiz: <b>{formatted_total}</b> UZS",
                                    reply_markup=keyboard)
     if message.text == "To'lovlar tarixi":
-        await message.answer(text='⏳')
+        await message.answer(text='⏳', reply_markup=ReplyKeyboardRemove())
         user = await get_user(message.from_user.id)
         await get_user_orders(phone=user.phone)
         years = await get_order_years(user.phone)
