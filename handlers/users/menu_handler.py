@@ -26,14 +26,16 @@ async def menu(message: types.Message, state: FSMContext):
         await state.set_state('aksiya')
         if sale:
             sale = sale[0]
+            print(sale.ImageURL)
             text = f"🔥 {sale.name}\n\n 🎁{sale.description} "
             keyboard = await move_keyboard()
             photo = open(f"{sale.ImageURL}", 'rb')
             await message.answer_photo(photo=photo, caption=text, reply_markup=keyboard)
     if message.text == "Taklif va shikoyatlar":
         keyboard = await back_key()
-        await message.answer("Iltimos o'z izohingizni shu yerda yozib qoldiring 👇\nMutaxassislarimiz o'rganib chiqib "
-                             "tez orada sizga javob berishadi",
+        await message.answer("Iltimos taklif va shikoyatlaringiz haqida imkon boricha batafsil so‘zlab bering "
+                             "va zarur bo‘lsa surat jo‘nating)\n\nHar bir taklif va shikoyatingiz biz uchun juda "
+                             "katta ahamiyatga ega. Xabaringiz javobsiz qolmaydi.",
                              reply_markup=keyboard)
         await state.set_state("get_comment")
     if message.text == 'QrCode':
@@ -105,8 +107,18 @@ async def menu(message: types.Message, state: FSMContext):
 async def get_comment(message: types.Message, state: FSMContext):
     # await add_comment(user_id=message.from_user.id, comment=message.text)
     user = await get_user(message.from_user.id)
-    text = f"👤 Telefon raqam: +{user.phone}\n✍️ Xabar: <b>{message.text}</b>"
-    await bot.send_message(chat_id=-1001669827084, text=text)
+    text = ''
+    if message.text:
+        text += f"👤 Telefon raqam: +{message.from_user.username}\n" if message.from_user.username is not None else f"👤 Telefon raqam: T.me/+{user.phone}\n"
+        text += f"👤 Telefon raqam: +{user.phone}\n✍️ Xabar: <b>{message.text}</b>"
+    else:
+        text += f"👤 Telefon raqam: +{message.from_user.username}\n" if message.from_user.username is not None else f"👤 Telefon raqam: T.me/+{user.phone}\n"
+    if message.photo:
+        photo = message.photo[-1].file_id
+        await bot.send_photo(photo=photo, chat_id=-1001669827084, caption=text)
+
+    else:
+        await bot.send_message(chat_id=-1001669827084, text=text)
 
     keyboard = await menu_keyboard()
     await message.answer("Murojaatingiz o'rganish uchun mutaxassisimizga yetkazildi\n"
