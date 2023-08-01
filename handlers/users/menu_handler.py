@@ -28,7 +28,7 @@ async def menu(message: types.Message, state: FSMContext):
             sale = sale[0]
             text = f"🔥 {sale.name}\n\n 🎁{sale.description} "
             keyboard = await move_keyboard()
-            photo = open(f".{sale.ImageURL}", 'rb')
+            photo = open(f"/home/user/bot/zahraton{sale.ImageURL}", 'rb')
             await message.answer_photo(photo=photo, caption=text, reply_markup=keyboard)
     if message.text == "Izoh qoldirish":
         keyboard = await back_key()
@@ -97,7 +97,7 @@ async def menu(message: types.Message, state: FSMContext):
             news = news[0]
             text = f"🔥 {news.name}\n\n{news.description} "
             keyboard = await move_keyboard()
-            photo = open(f".{news.ImageURL}", 'rb')
+            photo = open(f"/home/user/bot/zahraton{news.ImageURL}", 'rb')
             await message.answer_photo(photo=photo, caption=text, reply_markup=keyboard)
 
 
@@ -133,7 +133,7 @@ async def aksiya_handler(call: types.CallbackQuery, state: FSMContext):
     sale = sale[indexation]
     text = f"🔥 {sale.name}\n\n 🎁 {sale.description}"
     keyboard = await move_keyboard()
-    photo = open(f".{sale.ImageURL}", 'rb')
+    photo = open(f"/home/user/bot/zahraton{sale.ImageURL}", 'rb')
     text = f"🔥 {sale.name}\n\n 🎁 {sale.description}"
     keyboard = await move_keyboard()
     await state.update_data(sale_id=indexation)
@@ -158,7 +158,7 @@ async def news_handler(call: types.CallbackQuery, state: FSMContext):
         indexation = (indexation - 1) % len(news)
     news = news[indexation]
     await state.update_data(new_id=indexation)
-    photo = open(f".{news.ImageURL}", 'rb')
+    photo = open(f"/home/user/bot/zahraton{news.ImageURL}", 'rb')
     text = f"🔥 {news.name}\n\n{news.description}"
     keyboard = await move_keyboard()
     await bot.edit_message_media(media=types.InputMediaPhoto(media=InputFile(photo)),
