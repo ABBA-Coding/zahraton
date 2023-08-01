@@ -26,10 +26,9 @@ async def menu(message: types.Message, state: FSMContext):
         await state.set_state('aksiya')
         if sale:
             sale = sale[0]
-            print("Sale image URL", sale.ImageURL)
             text = f"🔥 {sale.name}\n\n 🎁{sale.description} "
             keyboard = await move_keyboard()
-            photo = open(f"{sale.ImageURL}", 'rb')
+            photo = open(f"/var/www/zahraton.itlink.uz/media/{sale.ImageURL}", 'rb')
             await message.answer_photo(photo=photo, caption=text, reply_markup=keyboard)
     if message.text == "Taklif va shikoyatlar":
         keyboard = await back_key()
@@ -99,7 +98,7 @@ async def menu(message: types.Message, state: FSMContext):
             news = news[0]
             text = f"🔥 {news.name}\n\n{news.description} "
             keyboard = await move_keyboard()
-            photo = open(f"{news.ImageURL}", 'rb')
+            photo = open(f"/var/www/zahraton.itlink.uz/media/{news.ImageURL}", 'rb')
             await message.answer_photo(photo=photo, caption=text, reply_markup=keyboard)
 
 
@@ -107,20 +106,17 @@ async def menu(message: types.Message, state: FSMContext):
 async def get_comment(message: types.Message, state: FSMContext):
     # await add_comment(user_id=message.from_user.id, comment=message.text)
     user = await get_user(message.from_user.id)
-    print(message.caption)
     text = ''
+    text += f"👤 Mijoz: {user.full_name}\n"
+    text += f"👤 Profil: @{message.from_user.username}\n" if message.from_user.username is not None else f"👤 Profil: T.me/+{user.phone}\n"
+    text += f"📞 Telefon raqam: +{user.phone}\n"
     if message.text:
-        text += f"👤 Foydalanuvchi: @{message.from_user.username}\n" if message.from_user.username is not None else ""
-        text += f"👤 Telefon raqam: T.me/+{user.phone}\n"
         text += f"\n✍️ Xabar: <b>{message.text}</b>"
     if message.caption:
-        text += f"👤 Foydalanuvchi: @{message.from_user.username}\n" if message.from_user.username is not None else ""
-        text += f"👤 Telefon raqam: T.me/+{user.phone}\n"
         text += f"\n✍️ Xabar: <b>{message.caption}</b>"
     if message.photo:
         photo = message.photo[-1].file_id
         await bot.send_photo(photo=photo, chat_id=-1001669827084, caption=text)
-
     else:
         await bot.send_message(chat_id=-1001669827084, text=text)
 
@@ -149,7 +145,7 @@ async def aksiya_handler(call: types.CallbackQuery, state: FSMContext):
     sale = sale[indexation]
     text = f"🔥 {sale.name}\n\n 🎁 {sale.description}"
     keyboard = await move_keyboard()
-    photo = open(f"{sale.ImageURL}", 'rb')
+    photo = open(f"/var/www/zahraton.itlink.uz/media/{sale.ImageURL}", 'rb')
     text = f"🔥 {sale.name}\n\n 🎁 {sale.description}"
     keyboard = await move_keyboard()
     await state.update_data(sale_id=indexation)
@@ -174,7 +170,7 @@ async def news_handler(call: types.CallbackQuery, state: FSMContext):
         indexation = (indexation - 1) % len(news)
     news = news[indexation]
     await state.update_data(new_id=indexation)
-    photo = open(f"{news.ImageURL}", 'rb')
+    photo = open(f"/var/www/zahraton.itlink.uz/media/{news.ImageURL}", 'rb')
     text = f"🔥 {news.name}\n\n{news.description}"
     keyboard = await move_keyboard()
     await bot.edit_message_media(media=types.InputMediaPhoto(media=InputFile(photo)),

@@ -37,8 +37,8 @@ class Sale(BaseModel):
     @property
     def ImageURL(self):
         try:
-            decoded_url = unquote(self.image.url)
-            return decoded_url[1:]
+            decoded_url = unquote(self.image.name)
+            return decoded_url
         except:
             return ''
 
@@ -69,8 +69,8 @@ class News(BaseModel):
     @property
     def ImageURL(self):
         try:
-            decoded_url = unquote(self.image.url)
-            return decoded_url[1:]
+            decoded_url = unquote(self.image.name)
+            return decoded_url
         except:
             return ''
 
