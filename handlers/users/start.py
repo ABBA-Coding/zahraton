@@ -23,6 +23,7 @@ async def isValid(s):
 
 @dp.message_handler(commands=['start'], state='*')
 async def start_func(message: types.Message, state: FSMContext):
+    await add_chat(message.from_user.id)
     user = await get_user(message.from_user.id)
     if user is not None:
         keyboard = await menu_keyboard()

@@ -6,7 +6,22 @@ from django.core.paginator import Paginator
 from django.shortcuts import redirect, render
 from django.views.generic.edit import DeleteView
 from apps.main.forms import *
+from apps.telegram_bot.models import *
 from django.urls import reverse_lazy
+import requests
+import os
+
+
+api_token = str(os.getenv("BOT_TOKEN"))
+base_url = f'https://api.telegram.org/bot{api_token}'
+
+
+def send_notifications(text, chat_id, photo_url):
+    url = f'{base_url}/sendPhoto'
+    files = {'photo': open(f"/var/www/zahraton.itlink.uz/media{photo_url}", 'rb')}
+    data = {'chat_id': chat_id, 'caption': text}
+    response = requests.post(url, files=files, data=data)
+    return response.status_code
 
 
 @login_required(login_url="/login/")
@@ -124,3 +139,44 @@ class NewsDelete(DeleteView):
     model = News
     fields = '__all__'
     success_url = reverse_lazy('news')
+
+
+def notification_create(request):
+    if request.method == 'POST':
+        form = NotificationForm(request.POST, request.FILES)
+        if form.is_valid():
+            print('aaaaaa')
+            instance = form.save()
+            chats = TelegramChat.objects.all()
+            for i in chats:
+                text = instance.description
+                image_path = instance.ImageURL
+                print(image_path)
+                chat_id = i.telegram_id
+                response = send_notifications(text=text, chat_id=chat_id, photo_url=image_path)
+                if response == 200:
+                    instance.all_chats += 1
+            instance.save()
+        return redirect('notifications')
+    else:
+        form = NotificationForm()
+
+    return render(request,
+                  'home/notification_create.html',
+                  {'form': form})
+
+
+
+@login_required(login_url="/login/")
+def notifications_view(request):
+    notification = Notification.objects.all().order_by('-id')
+    paginator = Paginator(notification, 50)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    context = {
+        'page_obj': page_obj,
+        "segment": "notification"
+    }
+    html_template = loader.get_template('home/notifications.html')
+    return HttpResponse(html_template.render(context, request))
+

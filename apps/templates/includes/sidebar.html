@@ -17,6 +17,11 @@
           <i class="align-middle" data-feather="user"></i> <span class="align-middle">Aksiyalar</span>
         </a>
       </li>
+      <li class="sidebar-item {% if 'notification' in segment %} active {% endif %}">
+        <a class="sidebar-link " href="{% url 'notifications' %}">
+          <i class="align-middle" data-feather="user"></i> <span class="align-middle">Bildirishnomalar</span>
+        </a>
+      </li>
       <li class="sidebar-item {% if 'news' in segment %} active {% endif %}">
         <a class="sidebar-link " href="{% url 'news' %}">
           <i class="align-middle" data-feather="grid"></i> <span class="align-middle">Yangiliklar</span>

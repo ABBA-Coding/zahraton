@@ -71,3 +71,19 @@ class NewsForm(forms.ModelForm):
         model = News
         fields = "__all__"
 
+
+class NotificationForm(forms.ModelForm):
+    description = forms.CharField(
+        widget=forms.TextInput(
+            attrs={
+                "class": "form-control",
+            }
+        ))
+    image = forms.ImageField(
+      widget=forms.FileInput()
+    )
+
+    class Meta:
+        model = Notification
+        fields = ['description', 'image']
+

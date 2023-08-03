@@ -26,3 +26,7 @@ class TelegramUser(models.Model):
             age -= 1
 
         return age
+
+
+class TelegramChat(models.Model):
+    telegram_id = models.CharField(max_length=100)

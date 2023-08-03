@@ -1,5 +1,5 @@
 from asgiref.sync import sync_to_async
-from apps.telegram_bot.models import TelegramUser as User
+from apps.telegram_bot.models import TelegramUser as User, TelegramChat
 from apps.main.models import Sale, Comment, News
 import requests
 import json
@@ -33,6 +33,12 @@ def set_user_telegram(user_id, phone, name):
         return user
     except:
         return None
+
+
+@sync_to_async
+def add_chat(chat_id):
+    chat, created = TelegramChat.objects.get_or_create(telegram_id=chat_id)
+    chat.save()
 
 
 @sync_to_async

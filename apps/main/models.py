@@ -85,3 +85,24 @@ class Comment(BaseModel):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     comment = models.TextField(max_length=4500)    
 
+
+class Notification(models.Model):
+    description = models.CharField(max_length=10000, null=True, blank=True)
+    image = models.ImageField(null=True)
+
+    all_chats = models.IntegerField(default=0)
+
+    @property
+    def ImageURL(self):
+        try:
+            decoded_url = unquote(self.image.name)
+            return decoded_url
+        except:
+            return ''
+
+    @property
+    def PhotoURL(self):
+        try:
+            return self.image.url
+        except:
+            return ''
