@@ -10,6 +10,8 @@ from apps.telegram_bot.models import *
 from django.urls import reverse_lazy
 import requests
 import os
+from datetime import datetime
+from django.db.models import Q
 
 
 api_token = str(os.getenv("BOT_TOKEN"))
@@ -26,8 +28,25 @@ def send_notifications(text, chat_id, photo_url):
 
 @login_required(login_url="/login/")
 def index(request):
+
+    current_date = datetime.now()
+    chats_in_current_month = TelegramChat.objects.filter(
+        Q(register_date__year=current_date.year) &
+        Q(register_date__month=current_date.month)
+    )
+    users_in_current_month = TelegramUser.objects.filter(
+        Q(register_date__year=current_date.year) &
+        Q(register_date__month=current_date.month)
+    )
+
+    telegram_chats = TelegramChat.objects.all()
+    users = TelegramUser.objects.all()
     context = {
         'segment': 'dashboard',
+        'telegram_chats': len(telegram_chats),
+        'this_month_chats': len(chats_in_current_month),
+        'this_month_users': len(users_in_current_month),
+        'users': len(users),
         'cashbacks': []
     }
 
@@ -164,7 +183,6 @@ def notification_create(request):
     return render(request,
                   'home/notification_create.html',
                   {'form': form})
-
 
 
 @login_required(login_url="/login/")

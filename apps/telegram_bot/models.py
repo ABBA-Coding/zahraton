@@ -1,5 +1,6 @@
 from django.db import models
 from datetime import datetime
+from django.utils import timezone
 
 
 class TelegramUser(models.Model):
@@ -14,6 +15,7 @@ class TelegramUser(models.Model):
     longitude = models.CharField(max_length=1000, null=True)
     latitude = models.CharField(max_length=1000, null=True)
     birth = models.CharField(max_length=1000, null=True)
+    register_date = models.DateField(default=timezone.now, null=True, blank=True)
 
     @property
     def age(self):
@@ -30,3 +32,4 @@ class TelegramUser(models.Model):
 
 class TelegramChat(models.Model):
     telegram_id = models.CharField(max_length=100)
+    register_date = models.DateField(default=timezone.now, null=True, blank=True)
