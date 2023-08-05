@@ -20,7 +20,7 @@ base_url = f'https://api.telegram.org/bot{api_token}'
 
 def send_notifications(text, chat_id, photo_url):
     url = f'{base_url}/sendPhoto'
-    files = {'photo': open(f"/var/www/zahraton.itlink.uz/media{photo_url}", 'rb')}
+    files = {'photo': open(f"/var/www/zahraton.itlink.uz/media/{photo_url}", 'rb')}
     data = {'chat_id': chat_id, 'caption': text}
     response = requests.post(url, files=files, data=data)
     return response.status_code
@@ -164,13 +164,11 @@ def notification_create(request):
     if request.method == 'POST':
         form = NotificationForm(request.POST, request.FILES)
         if form.is_valid():
-            print('aaaaaa')
             instance = form.save()
             chats = TelegramChat.objects.all()
             for i in chats:
                 text = instance.description
                 image_path = instance.ImageURL
-                print(image_path)
                 chat_id = i.telegram_id
                 response = send_notifications(text=text, chat_id=chat_id, photo_url=image_path)
                 if response == 200:
