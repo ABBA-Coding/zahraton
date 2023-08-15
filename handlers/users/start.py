@@ -60,7 +60,7 @@ async def get_name(message: types.Message, state: FSMContext):
     if date_pattern.match(message.text) is not None:
         await state.update_data(birth=message.text)
         keyboard = await location_send()
-        await message.answer('Iltimos manzilingizni kiriting 👇', reply_markup=keyboard)
+        await message.answer('Iltimos manzilingizni ulashing 👇', reply_markup=keyboard)
         await state.set_state('get_location')
     else:
         await message.answer('Iltimos tug\'ilgan sanangizni <b>1980-12-24</b>(yil-oy-kun) shaklida kiriting kiriting 👇',

@@ -11,6 +11,7 @@ PGUSER = str(os.getenv("PGUSER"))
 PGPASSWORD = str(os.getenv("PGPASSWORD"))
 ADMIN = str(os.getenv("ADMIN")).split(" ")
 SLEEP_TIME = .3
+HOST_URL = str(os.getenv("HOST_URL"))
 
 ip = str(os.getenv("ip"))
 
