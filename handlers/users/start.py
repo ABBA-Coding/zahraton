@@ -59,9 +59,14 @@ async def get_name(message: types.Message, state: FSMContext):
 async def get_name(message: types.Message, state: FSMContext):
     if date_pattern.match(message.text) is not None:
         await state.update_data(birth=message.text)
-        keyboard = await location_send()
-        await message.answer('Iltimos manzilingizni ulashing 👇', reply_markup=keyboard)
-        await state.set_state('get_location')
+        # keyboard = await location_send()
+        # await message.answer('Iltimos manzilingizni ulashing 👇', reply_markup=keyboard)
+        # await state.set_state('get_location')
+        await state.update_data(longitude=0, latitude=0)
+        keyboard = await phone_keyboard()
+        await message.answer("Telefon raqamingizni xalqaro formatda(998YYXXXXXXX) kiriting. Yoki raqamni ulashing 👇",
+                             reply_markup=keyboard)
+        await state.set_state('get_phone')
     else:
         await message.answer('Iltimos tug\'ilgan sanangizni <b>1980-12-24</b>(yil-oy-kun) shaklida kiriting kiriting 👇',
                              reply_markup=ReplyKeyboardRemove())
