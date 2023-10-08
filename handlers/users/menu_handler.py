@@ -99,8 +99,8 @@ async def menu(message: types.Message, state: FSMContext):
             news = news[0]
             text = f"🔥 {news.name}\n\n{news.description} "
             keyboard = await move_keyboard()
-            # photo = open(f"/var/www/zahraton.itlink.uz/media/{news.ImageURL}", 'rb')
-            photo = open(f"./files/{news.ImageURL}", 'rb')
+            photo = open(f"/var/www/zahraton.itlink.uz/media/{news.ImageURL}", 'rb')
+            # photo = open(f"./files/{news.ImageURL}", 'rb')
             media_group = [
                 types.InputMediaPhoto(media=photo, caption='Caption for image 1'),
                 ]
