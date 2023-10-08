@@ -58,6 +58,7 @@ class News(BaseModel):
     image4 = models.ImageField(null=True, blank=True)
     image5 = models.ImageField(null=True, blank=True)
     max_age = models.IntegerField(default=100)
+    min_age = models.IntegerField(default=0)
     for_gender = models.CharField(max_length=200, choices=GENDER, null=True)
 
     active = models.BooleanField(default=True)
