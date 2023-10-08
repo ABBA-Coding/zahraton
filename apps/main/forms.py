@@ -43,6 +43,22 @@ class NewsForm(forms.ModelForm):
       widget=forms.FileInput()
     )
 
+    image2 = forms.ImageField(
+      widget=forms.FileInput()
+    )
+
+    image3 = forms.ImageField(
+      widget=forms.FileInput()
+    )
+
+    image4 = forms.ImageField(
+      widget=forms.FileInput()
+    )
+
+    image5 = forms.ImageField(
+      widget=forms.FileInput()
+    )
+
     min_age = forms.IntegerField(
         widget=forms.NumberInput(
             attrs={

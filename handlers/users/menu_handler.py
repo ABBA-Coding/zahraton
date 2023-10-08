@@ -99,8 +99,37 @@ async def menu(message: types.Message, state: FSMContext):
             news = news[0]
             text = f"🔥 {news.name}\n\n{news.description} "
             keyboard = await move_keyboard()
-            photo = open(f"/var/www/zahraton.itlink.uz/media/{news.ImageURL}", 'rb')
+            # photo = open(f"/var/www/zahraton.itlink.uz/media/{news.ImageURL}", 'rb')
+            photo = open(f"./files/{news.ImageURL}", 'rb')
+            media_group = [
+                types.InputMediaPhoto(media=photo, caption='Caption for image 1'),
+                ]
+            if news.image2:
+                # photo2 = open(f"/var/www/zahraton.itlink.uz/media/{news.Image2URL}", 'rb')
+                photo2 = open(f"./files/{news.Image2URL}", 'rb')
+                media_group += [
+                    types.InputMediaPhoto(media=photo2),
+                ]
+            if news.image3:
+                # photo3 = open(f"/var/www/zahraton.itlink.uz/media/{news.Image3URL}", 'rb')
+                photo3 = open(f"./files/{news.Image3URL}", 'rb')
+                media_group += [
+                    types.InputMediaPhoto(media=photo3),
+                ]
+            if news.image4:
+                # photo4 = open(f"/var/www/zahraton.itlink.uz/media/{news.Image4URL}", 'rb')
+                photo4 = open(f"./files/{news.Image4URL}", 'rb')
+                media_group += [
+                    types.InputMediaPhoto(media=photo4),
+                ]
+            if news.image5:
+                # photo5 = open(f"/var/www/zahraton.itlink.uz/media/{news.Image5URL}", 'rb')
+                photo5 = open(f"./files/{news.Image5URL}", 'rb')
+                media_group += [
+                    types.InputMediaPhoto(media=photo5),
+                ]
             await message.answer_photo(photo=photo, caption=text, reply_markup=keyboard)
+            # await bot.send_media_group(chat_id=`chat_id`, media=media_group)
 
 
 @dp.message_handler(state="get_comment", content_types=types.ContentType.ANY)
