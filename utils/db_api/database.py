@@ -8,7 +8,7 @@ import json
 @sync_to_async
 def get_user(user_id):
     try:
-        url = f'http://127.0.0.1:8000/api/get_user?user_id={user_id}'
+        url = f'https://botloyalty.zahratun.uz/api/get_user?user_id={user_id}'
 
         response = requests.get(url)
         data = response.status_code
@@ -84,7 +84,7 @@ def add_user(phone, name, telegram_id, gender, latitude, longitude, birth, uuid=
         'longitude': longitude,
         'birth': birth,
     }
-    url = 'http://127.0.0.1:8000/api/post_user/'
+    url = 'https://botloyalty.zahratun.uz/api/post_user/'
 
     response = requests.post(url, data=data)
 
@@ -95,6 +95,7 @@ def add_user(phone, name, telegram_id, gender, latitude, longitude, birth, uuid=
         print('Failed to create user')
         print(response.status_code)
         print(response.text)
+    return response.json()
 
 @sync_to_async
 def register_new_user(gender, phone, name, user_id, longitude, latitude, birth):
