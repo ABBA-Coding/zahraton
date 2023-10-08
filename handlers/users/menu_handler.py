@@ -112,8 +112,8 @@ async def get_comment(message: types.Message, state: FSMContext):
         if message.caption:
             text = ''
             text += f"👤 Mijoz: {user.full_name}\n"
-            text += f"👤 Profil: @{message.from_user.username}\n" if message.from_user.username is not None else f"👤 Profil: T.me/+{user.phone}\n"
-            text += f"📞 Telefon raqam: +{user.phone}\n"
+            text += f"👤 Profil: @{message.from_user.username}\n" if message.from_user.username is not None else f"👤 Profil: T.me/+{user['phone']}\n"
+            text += f"📞 Telefon raqam: +{user['phone']}\n"
             text += f"\n✍️ Xabar: <b>{message.caption}</b>"
             keyboard = await menu_keyboard()
             await bot.send_photo(photo=photo, chat_id=-1001669827084, caption=text)
@@ -139,8 +139,8 @@ async def get_comment_last(message: types.Message, state: FSMContext):
         photo = data['photo_id']
         text = ''
         text += f"👤 Mijoz: {user.full_name}\n"
-        text += f"👤 Profil: @{message.from_user.username}\n" if message.from_user.username is not None else f"👤 Profil: T.me/+{user.phone}\n"
-        text += f"📞 Telefon raqam: +{user.phone}\n"
+        text += f"👤 Profil: @{message.from_user.username}\n" if message.from_user.username is not None else f"👤 Profil: T.me/+{user['phone']}\n"
+        text += f"📞 Telefon raqam: +{user['phone']}\n"
         keyboard = await menu_keyboard()
         await bot.send_photo(photo=photo, chat_id=-1001669827084, caption=text)
         await message.answer("Murojaatingiz o'rganish uchun mutaxassisimizga yetkazildi\n"
@@ -160,8 +160,8 @@ async def get_comment_last(message: types.Message, state: FSMContext):
         comment = data['comment_text']
         text = ''
         text += f"👤 Mijoz: {user.full_name}\n"
-        text += f"👤 Profil: @{message.from_user.username}\n" if message.from_user.username is not None else f"👤 Profil: T.me/+{user.phone}\n"
-        text += f"📞 Telefon raqam: +{user.phone}\n"
+        text += f"👤 Profil: @{message.from_user.username}\n" if message.from_user.username is not None else f"👤 Profil: T.me/+{user['phone']}\n"
+        text += f"📞 Telefon raqam: +{user['phone']}\n"
         text += f"\n✍️ Xabar: <b>{comment}</b>"
         keyboard = await menu_keyboard()
         await bot.send_message(chat_id=-1001669827084, text=text)
@@ -183,8 +183,8 @@ async def get_comment_last(message: types.Message, state: FSMContext):
     await state.update_data(photo_id=photo)
     text = ''
     text += f"👤 Mijoz: {user.full_name}\n"
-    text += f"👤 Profil: @{message.from_user.username}\n" if message.from_user.username is not None else f"👤 Profil: T.me/+{user.phone}\n"
-    text += f"📞 Telefon raqam: +{user.phone}\n"
+    text += f"👤 Profil: @{message.from_user.username}\n" if message.from_user.username is not None else f"👤 Profil: T.me/+{user['phone']}\n"
+    text += f"📞 Telefon raqam: +{user['phone']}\n"
     text += f"\n✍️ Xabar: <b>{comment}</b>"
     keyboard = await menu_keyboard()
     await bot.send_photo(photo=photo, chat_id=-1001669827084, caption=text)
@@ -201,8 +201,8 @@ async def get_comment_last(message: types.Message, state: FSMContext):
     caption = message.text
     text = ''
     text += f"👤 Mijoz: {user.full_name}\n"
-    text += f"👤 Profil: @{message.from_user.username}\n" if message.from_user.username is not None else f"👤 Profil: T.me/+{user.phone}\n"
-    text += f"📞 Telefon raqam: +{user.phone}\n"
+    text += f"👤 Profil: @{message.from_user.username}\n" if message.from_user.username is not None else f"👤 Profil: T.me/+{user['phone']}\n"
+    text += f"📞 Telefon raqam: +{user['phone']}\n"
     text += f"\n✍️ Xabar: <b>{caption}</b>"
     keyboard = await menu_keyboard()
     await bot.send_photo(photo=photo, chat_id=-1001669827084, caption=text)
@@ -357,7 +357,7 @@ async def get_year(call: types.CallbackQuery, state: FSMContext):
     data = call.data
     if data != 'back_menu':
         user = await get_user(call.from_user.id)
-        dates = await get_order_month(phone=user.phone, year=data)
+        dates = await get_order_month(phone=user['phone'], year=data)
         markup = await month_keyboard(dates)
         await call.message.edit_text(text='Kerakli oyni tanlang 👇', reply_markup=markup)
         await state.update_data(year=data)
@@ -377,7 +377,7 @@ async def get_year(call: types.CallbackQuery, state: FSMContext):
     if data != 'back_menu':
         await call.message.delete()
         user = await get_user(call.from_user.id)
-        orders = await get_orders_by_month(phone=user.phone, year=state_data["year"], month=data)
+        orders = await get_orders_by_month(phone=user['phone'], year=state_data["year"], month=data)
         i = 1
         for order in orders:
             text = ''
@@ -396,14 +396,14 @@ async def get_year(call: types.CallbackQuery, state: FSMContext):
             chunks = [text[i:i+4096] for i in range(0, len(text), 4096)]
             for chunk in chunks:
                 await bot.send_message(chat_id=call.from_user.id, text=chunk)
-        years = await get_order_years(user.phone)
+        years = await get_order_years(user['phone'])
         markup = await year_keyboard(years)
         await bot.send_message(chat_id=call.from_user.id, text='Kerakli yilni tanlang 👇', reply_markup=markup)
         await state.set_state('get_year_')
     else:
         user = await get_user(call.from_user.id)
-        await get_user_orders(phone=user.phone)
-        years = await get_order_years(user.phone)
+        await get_user_orders(phone=user['phone'])
+        years = await get_order_years(user['phone'])
         markup = await year_keyboard(years)
         await call.message.edit_text(text='Kerakli yilni tanlang 👇', reply_markup=markup)
         await state.set_state('get_year_')
