@@ -52,8 +52,11 @@ class News(BaseModel):
 
     name = models.CharField(max_length=10000, null=True, blank=True)
     description = models.CharField(max_length=10000, null=True, blank=True)
-    image = models.ImageField(null=True)
-    min_age = models.IntegerField(default=0)
+    image = models.ImageField(null=True, blank=True)
+    image2 = models.ImageField(null=True, blank=True)
+    image3 = models.ImageField(null=True, blank=True)
+    image4 = models.ImageField(null=True, blank=True)
+    image5 = models.ImageField(null=True, blank=True)
     max_age = models.IntegerField(default=100)
     for_gender = models.CharField(max_length=200, choices=GENDER, null=True)
 
@@ -70,6 +73,66 @@ class News(BaseModel):
     def ImageURL(self):
         try:
             decoded_url = unquote(self.image.name)
+            return decoded_url
+        except:
+            return ''
+
+    @property
+    def Photo2URL(self):
+        try:
+            return self.image2.url
+        except:
+            return ''
+
+    @property
+    def Image2URL(self):
+        try:
+            decoded_url = unquote(self.image2.name)
+            return decoded_url
+        except:
+            return ''
+
+    @property
+    def Photo3URL(self):
+        try:
+            return self.image3.url
+        except:
+            return ''
+
+    @property
+    def Image3URL(self):
+        try:
+            decoded_url = unquote(self.image3.name)
+            return decoded_url
+        except:
+            return ''
+
+    @property
+    def Photo4URL(self):
+        try:
+            return self.image4.url
+        except:
+            return ''
+
+    @property
+    def Image4URL(self):
+        try:
+            decoded_url = unquote(self.image4.name)
+            return decoded_url
+        except:
+            return ''
+
+    @property
+    def Photo5URL(self):
+        try:
+            return self.image5.url
+        except:
+            return ''
+
+    @property
+    def Image5URL(self):
+        try:
+            decoded_url = unquote(self.image5.name)
             return decoded_url
         except:
             return ''

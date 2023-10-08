@@ -25,7 +25,8 @@ async def isValid(s):
 async def start_func(message: types.Message, state: FSMContext):
     await add_chat(message.from_user.id)
     user = await get_user(message.from_user.id)
-    if user is not None:
+    print(message.from_user.id)
+    if user['status'] and user is not None:
         keyboard = await menu_keyboard()
         await message.answer("Zahratun supermarket botiga xush kelibsiz.\n\nBotda aksiyalar, yangiliklar, Zahratun "
                              "kartangiz balansi, foydali ma’lumotlar va izoh bildirish bo’limini topa olasiz. \n\n"
@@ -92,7 +93,7 @@ async def get_name(message: types.Message, state: FSMContext):
 async def get_phone(message: types.Message, state: FSMContext):
     phone_number = message.contact.phone_number
     keyboard = await oferta_confirm()
-    await state.update_data(phone=phone_number)
+    await state.update_data(phone=phone_number[1:])
     await message.answer('Biz sizni malumotlaringizni qayta ishlashga ruhsat bering', reply_markup=keyboard)
     await state.set_state('confir_oferta')
 

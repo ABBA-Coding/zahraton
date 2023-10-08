@@ -8,10 +8,14 @@ import json
 @sync_to_async
 def get_user(user_id):
     try:
-        user = User.objects.get(telegram_id=user_id)
-        return user
-    except:    
-        return None 
+        url = f'http://127.0.0.1:8000/api/get_user?user_id={user_id}'
+
+        response = requests.get(url)
+        data = response.status_code
+        print(data)
+        return response.json()
+    except:
+        return None
 
     
 @sync_to_async
@@ -71,18 +75,26 @@ def get_news(user_id):
 
 
 def add_user(phone, name, telegram_id, gender, latitude, longitude, birth, uuid=None):
-    user, created = User.objects.get_or_create(
-        phone=phone
-    )
-    user.telegram_id = telegram_id
-    user.full_name = name
-    user.gender = gender
-    user.latitude = latitude
-    user.longitude = longitude
-    user.birth = birth
-    user.save()
-    return user
+    data = {
+        'phone': phone,
+        'telegram_id': telegram_id,
+        'full_name': name,
+        'gender': gender,
+        'latitude': latitude,
+        'longitude': longitude,
+        'birth': birth,
+    }
+    url = 'http://127.0.0.1:8000/api/post_user/'
 
+    response = requests.post(url, data=data)
+
+    # Check the response status code to see if the request was successful
+    if response.status_code == 201:  # 201 Created status code for a successful POST request
+        print('User created successfully')
+    else:
+        print('Failed to create user')
+        print(response.status_code)
+        print(response.text)
 
 @sync_to_async
 def register_new_user(gender, phone, name, user_id, longitude, latitude, birth):
@@ -126,7 +138,9 @@ def get_api_uuid(phone):
 
 @sync_to_async
 def get_user_balance(phone):
+    print(phone)
     user_uuid = get_api_uuid(phone)
+    print(user_uuid)
     url = "https://cabinet.cashbek.uz/services/gocashapi/api/get-user-balance"
     data = {
         "key": "e67ab364-bc13-11ec-8a51-0242ac12000d",

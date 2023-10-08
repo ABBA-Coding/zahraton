@@ -14,7 +14,7 @@ async def menu(message: types.Message, state: FSMContext):
     user = await get_user(user_id=message.from_user.id)
     if message.text == "💰 Mening hisobim (bonuslarim)":
         keyboard = await menu_keyboard()
-        cashbacks = await get_user_balance(user.phone)
+        cashbacks = await get_user_balance(user['phone'])
         formatted_total = "{:,.3f}".format(float(cashbacks['balance']) / 1000).replace(",", ".") if cashbacks['balance'] >= 1000 else int(cashbacks['balance'])
         text = f"\n\n💵 Hozirgi keshbek: <b>{formatted_total}</b> UZS"
         await message.answer(text, reply_markup=keyboard)
@@ -38,8 +38,9 @@ async def menu(message: types.Message, state: FSMContext):
                              reply_markup=keyboard)
         await state.set_state("get_comment")
     if message.text == '🔄 QR kod':
-        balance = await get_user_balance(user.phone)
-        user_uuid = get_api_uuid(user.phone)
+        print(user)
+        balance = await get_user_balance(user['phone'])
+        user_uuid = get_api_uuid(user['phone'])
         q = qrcode.make(f'{user_uuid}')
         q.save('qrcode.png')
         keyboard = await menu_keyboard()
@@ -52,8 +53,8 @@ async def menu(message: types.Message, state: FSMContext):
     if message.text == "💳 To'lovlar tarixi":
         await message.answer(text='⏳', reply_markup=ReplyKeyboardRemove())
         user = await get_user(message.from_user.id)
-        await get_user_orders(phone=user.phone)
-        years = await get_order_years(user.phone)
+        await get_user_orders(phone=user['phone'])
+        years = await get_order_years(user['phone'])
         await bot.delete_message(chat_id=message.from_user.id, message_id=message.message_id + 1)
         markup = await year_keyboard(years)
         await message.answer(text='Kerakli yilni tanlang 👇', reply_markup=markup)
