@@ -1,8 +1,13 @@
+import os
 import requests
 from celery import shared_task
 
 from apps.main.models import Notification
 from apps.telegram_bot.models import TelegramChat
+
+
+api_token = str(os.getenv("BOT_TOKEN"))
+base_url = f'https://api.telegram.org/bot{api_token}'
 
 
 def send_notifications(text, chat_id, photo_url):

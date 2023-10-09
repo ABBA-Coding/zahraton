@@ -10,14 +10,8 @@ from apps.home.tasks import send_notifications_task
 from apps.main.forms import *
 from apps.telegram_bot.models import *
 from django.urls import reverse_lazy
-import requests
-import os
 from datetime import datetime
 from django.db.models import Q
-
-
-api_token = str(os.getenv("BOT_TOKEN"))
-base_url = f'https://api.telegram.org/bot{api_token}'
 
 
 
