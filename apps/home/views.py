@@ -5,6 +5,8 @@ from django.template import loader
 from django.core.paginator import Paginator
 from django.shortcuts import redirect, render
 from django.views.generic.edit import DeleteView
+
+from apps.home.tasks import send_notifications_task
 from apps.main.forms import *
 from apps.telegram_bot.models import *
 from django.urls import reverse_lazy
@@ -17,13 +19,6 @@ from django.db.models import Q
 api_token = str(os.getenv("BOT_TOKEN"))
 base_url = f'https://api.telegram.org/bot{api_token}'
 
-
-def send_notifications(text, chat_id, photo_url):
-    url = f'{base_url}/sendPhoto'
-    files = {'photo': open(f"/var/www/zahraton.itlink.uz/media/{photo_url}", 'rb')}
-    data = {'chat_id': chat_id, 'caption': text}
-    response = requests.post(url, files=files, data=data)
-    return response.status_code
 
 
 @login_required(login_url="/login/")
@@ -165,14 +160,7 @@ def notification_create(request):
         form = NotificationForm(request.POST, request.FILES)
         if form.is_valid():
             instance = form.save()
-            chats = TelegramChat.objects.all()
-            for i in chats:
-                text = instance.description
-                image_path = instance.ImageURL
-                chat_id = i.telegram_id
-                response = send_notifications(text=text, chat_id=chat_id, photo_url=image_path)
-                if response == 200:
-                    instance.all_chats += 1
+            send_notifications_task.delay(instance.id)
             instance.save()
         return redirect('notifications')
     else:

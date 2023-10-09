@@ -151,8 +151,12 @@ class Comment(BaseModel):
 
 
 class Notification(models.Model):
+    class NotificationStatus(models.IntegerChoices):
+        CREATED = 0, "Yaratildi"
+        SENDED = 1, "Bitirildi"
     description = models.CharField(max_length=10000, null=True, blank=True)
     image = models.ImageField(null=True)
+    status = models.IntegerField(choices=NotificationStatus.choices, default=NotificationStatus.CREATED)
 
     all_chats = models.IntegerField(default=0)
 

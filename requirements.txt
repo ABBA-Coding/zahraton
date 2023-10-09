@@ -45,3 +45,7 @@ tzlocal==4.3
 uritemplate==4.1.1
 urllib3==1.26.15
 yarl==1.8.2
+celery==5.3.1  # pyup: < 6.0  # https://github.com/celery/celery
+django-celery-beat==2.5.0  # https://github.com/celery/django-celery-beat
+SQLAlchemy==2.0.21
+PyAMQP==0.1.0.7
