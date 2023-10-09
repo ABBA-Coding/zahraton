@@ -21,7 +21,7 @@ def send_notifications(text, chat_id, photo_url):
 @shared_task()
 def send_notifications_task(notification_id):
     notification = Notification.objects.filter(pk=notification_id).first()
-    chats = TelegramChat.objects.filter(telegram_id=390736292)
+    chats = TelegramChat.objects.all()
     sended_count = 0
     for i in chats:
         text = notification.description
