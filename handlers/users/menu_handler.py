@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from aiogram import types
 from aiogram.dispatcher import FSMContext
 from loader import dp, bot
@@ -5,7 +7,7 @@ from keyboards.inline.menu_button import *
 from keyboards.inline.main_inline import *
 from utils.db_api.database import *
 import qrcode
-from aiogram.types import InputFile
+from aiogram.types import InputFile, ReplyKeyboardRemove
 
 
 async def get_sales_by_index(m: types.Message, index: int, db: Database, debug: bool, next: bool = False):
