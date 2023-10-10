@@ -7,7 +7,7 @@ from keyboards.inline.menu_button import *
 from keyboards.inline.main_inline import *
 from utils.db_api.database import *
 import qrcode
-from aiogram.types import InputFile, ReplyKeyboardRemove
+from aiogram.types import ReplyKeyboardRemove
 
 
 async def get_sales_by_index(m: types.Message, index: int, db: Database, debug: bool, next: bool = False):
@@ -20,18 +20,17 @@ async def get_sales_by_index(m: types.Message, index: int, db: Database, debug: 
         text = f"🔥 {sale['name']}\n\n 🎁{sale['description']} "
 
         if sale["saleshots_set"]:
-            media = types.MediaGroup()
-            if debug is True:
-                for sale_obj in sale['saleshots_set']:
-                    photo = types.InputFile(f"{sale_obj['image'].replace('http://localhost:8000/', '')}")
-                    media.attach_photo(photo, caption=text)
-                    text = None
-            else:
-                for sale_obj in sale['saleshots_set']:
-                    photo = sale_obj['image']
-                    media.attach_photo(photo)
-                    text = None
-            await m.answer_media_group(media=media)
+            media_group = []
+            for sale_obj in sale['saleshots_set']:
+                photo = (open(f"{sale_obj['image'].replace('http://localhost:8000/', '')}", 'rb') if debug is True
+                         else open(
+                    f"{sale_obj['image'].replace('https://botloyalty.zahratun.uz/', '/var/www/zahraton.itlink.uz/')}",
+                    'rb'))
+                media_group += [
+                    types.InputMediaPhoto(media=photo, caption=text),
+                ]
+                text = None
+            await m.answer_media_group(media=media_group)
         else:
             await m.answer(text)
         return index
@@ -50,7 +49,9 @@ async def get_news_by_index(m: types.Message, index: int, db: Database, debug: b
             media_group = []
             for sale_obj in news['newsshots_set']:
                 photo = (open(f"{sale_obj['image'].replace('http://localhost:8000/', '')}", 'rb') if debug is True
-                         else sale_obj['image'])
+                         else open(
+                    f"{sale_obj['image'].replace('https://botloyalty.zahratun.uz/', '/var/www/zahraton.itlink.uz/')}",
+                    'rb'))
                 media_group += [
                     types.InputMediaPhoto(media=photo, caption=text),
                 ]
