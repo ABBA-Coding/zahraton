@@ -19,23 +19,23 @@ async def get_sales_by_index(m: types.Message, index: int, db: Database, debug: 
         sale = sale[0]
         if sale:
             sale = sale[index]
-        text = f"🔥 {sale['name']}\n\n 🎁{sale['description']} "
+            text = f"🔥 {sale['name']}\n\n 🎁{sale['description']} "
 
-        if sale["saleshots_set"]:
-            media_group = []
-            for sale_obj in sale['saleshots_set']:
-                photo = (open(f"{sale_obj['image'].replace('http://localhost:8000/', '')}", 'rb') if debug is True
-                         else open(
-                    f"{sale_obj['image'].replace('https://botloyalty.zahratun.uz/', '/var/www/zahraton.itlink.uz/')}",
-                    'rb'))
-                media_group += [
-                    types.InputMediaPhoto(media=photo, caption=text),
-                ]
-                text = None
-            await m.answer_media_group(media=media_group)
-        else:
-            await m.answer(text)
-        return index
+            if sale["saleshots_set"]:
+                media_group = []
+                for sale_obj in sale['saleshots_set']:
+                    photo = (open(f"{sale_obj['image'].replace('http://localhost:8000/', '')}", 'rb') if debug is True
+                             else open(
+                        f"{sale_obj['image'].replace('https://botloyalty.zahratun.uz/', '/var/www/zahraton.itlink.uz/')}",
+                        'rb'))
+                    media_group += [
+                        types.InputMediaPhoto(media=photo, caption=text),
+                    ]
+                    text = None
+                await m.answer_media_group(media=media_group)
+            else:
+                await m.answer(text)
+            return index
 
 
 async def get_news_by_index(m: types.Message, index: int, db: Database, debug: bool, next: bool = False):
@@ -47,23 +47,23 @@ async def get_news_by_index(m: types.Message, index: int, db: Database, debug: b
         news = news[0]
         if news:
             news = news[index]
-        text = f"🔥 {news['name']}\n\n 🎁{news['description']} "
+            text = f"🔥 {news['name']}\n\n 🎁{news['description']} "
 
-        if news["newsshots_set"]:
-            media_group = []
-            for sale_obj in news['newsshots_set']:
-                photo = (open(f"{sale_obj['image'].replace('http://localhost:8000/', '')}", 'rb') if debug is True
-                         else open(
-                    f"{sale_obj['image'].replace('https://botloyalty.zahratun.uz/', '/var/www/zahraton.itlink.uz/')}",
-                    'rb'))
-                media_group += [
-                    types.InputMediaPhoto(media=photo, caption=text),
-                ]
-                text = None
-            await bot.send_media_group(chat_id=m.from_user.id, media=media_group)
-        else:
-            await m.answer(text)
-        return index
+            if news["newsshots_set"]:
+                media_group = []
+                for sale_obj in news['newsshots_set']:
+                    photo = (open(f"{sale_obj['image'].replace('http://localhost:8000/', '')}", 'rb') if debug is True
+                             else open(
+                        f"{sale_obj['image'].replace('https://botloyalty.zahratun.uz/', '/var/www/zahraton.itlink.uz/')}",
+                        'rb'))
+                    media_group += [
+                        types.InputMediaPhoto(media=photo, caption=text),
+                    ]
+                    text = None
+                await bot.send_media_group(chat_id=m.from_user.id, media=media_group)
+            else:
+                await m.answer(text)
+            return index
 
 
 @dp.message_handler(state='user_menu')
