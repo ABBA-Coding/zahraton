@@ -14,7 +14,7 @@ async def get_sales_by_index(m: types.Message, index: int, db: Database, debug: 
                              next: bool = False):
     sale = await db.get_active_sales_all()
     if next:
-        index = abs(index + 1) % len(sale[0])
+        index = abs(index + 1) % (len(sale[0]) if len(sale[0]) != 0 else 1)
 
     if sale:
         sale = sale[0]
@@ -44,7 +44,7 @@ async def get_news_by_index(m: types.Message, index: int, db: Database, debug: b
                             next: bool = False):
     news = await db.get_news(m.from_user.id)
     if next:
-        index = abs(index + 1) % len(news[0])
+        index = abs(index + 1) % (len(news[0]) if len(news[0]) != 0 else 1)
 
     if news:
         news = news[0]
