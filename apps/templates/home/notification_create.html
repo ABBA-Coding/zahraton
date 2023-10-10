@@ -38,7 +38,6 @@
             <form role="form" method="post" action="" enctype="multipart/form-data">
 
                 {% csrf_token %}
-
               <div class="form-group">
                 <label for="inputName">Bildirishnoma izohi</label>
                 {{ form.description }}
@@ -48,6 +47,30 @@
                 <label for="inputPhoto">Bildirishnoma rasmi</label>
                 <br>
                 {{ form.image }}
+              </div>
+              <br>
+                <div class="form-group">
+                <label for="inputPhoto">Bildirishnoma rasmi 2</label>
+                <br>
+                {{ form.image2 }}
+              </div>
+              <br>
+                <div class="form-group">
+                <label for="inputPhoto">Bildirishnoma rasmi 3</label>
+                <br>
+                {{ form.image3 }}
+              </div>
+              <br>
+                <div class="form-group">
+                <label for="inputPhoto">Bildirishnoma rasmi 4</label>
+                <br>
+                {{ form.image4 }}
+              </div>
+              <br>
+                <div class="form-group">
+                <label for="inputPhoto">Bildirishnoma rasmi 5</label>
+                <br>
+                {{ form.image5 }}
               </div>
               <br>
               <div class="row">

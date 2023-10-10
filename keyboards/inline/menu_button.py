@@ -1,9 +1,10 @@
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardMarkup, KeyboardButton, \
+    ReplyKeyboardRemove
 from aiogram.utils.callback_data import CallbackData
 from apps.main.models import *
 
 
-async def phone_keyboard():
+def phone_keyboard():
     keyboard = ReplyKeyboardMarkup()
     key1 = KeyboardButton(text=f"📞 Raqamni ulashish", request_contact=True)
     key2 = KeyboardButton(text=f"⬅️ Orqaga")
@@ -12,7 +13,7 @@ async def phone_keyboard():
     return keyboard
 
 
-async def gender_keyboard():
+def gender_keyboard():
     keyboard = ReplyKeyboardMarkup()
     key1 = KeyboardButton(text=f"👩‍💼 Ayol")
     key2 = KeyboardButton(text=f"👨‍💼 Erkak")
@@ -31,7 +32,7 @@ async def order_keyboard():
     return keyboard
 
 
-async def back_key():
+def back_key():
     keyboard = ReplyKeyboardMarkup()
     key1 = KeyboardButton(text=f"⬅️ Orqaga")
     keyboard.add(key1)
@@ -39,7 +40,16 @@ async def back_key():
     return keyboard
 
 
-async def menu_keyboard():
+def move_reply_keyboard():
+    keyboard = ReplyKeyboardMarkup(row_width=2)
+    key1 = KeyboardButton(text="Keyingi ➡️")
+    key2 = KeyboardButton(text="⬅️ Orqaga")
+    keyboard.add(key1, key2)
+    keyboard.resize_keyboard = True
+    return keyboard
+
+
+def menu_keyboard():
     keyboard = ReplyKeyboardMarkup(row_width=2)
     key1 = KeyboardButton(text=f"💰 Mening hisobim (bonuslarim)")
     key2 = KeyboardButton(text=f"🔄 QR kod")
@@ -52,14 +62,14 @@ async def menu_keyboard():
     return keyboard
 
 
-async def location_send():
+def location_send():
     mrk = ReplyKeyboardMarkup(row_width=2, resize_keyboard=True)
     bt = KeyboardButton(f'📍 Joylashuvni ulashish', request_location=True)
     mrk.add(bt)
     return mrk
 
 
-async def comment_keyboard(type):
+def comment_keyboard(type):
     keyboard = ReplyKeyboardMarkup(row_width=2)
     key1 = KeyboardButton(text=f"✍️ Izoh qo'shish")
     if type == 'photo':

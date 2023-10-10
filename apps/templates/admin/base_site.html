@@ -1,0 +1,11 @@
+<!-- templates/admin/base_site.html -->
+
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block content %}
+    <!-- Add your custom content, such as statistics, charts, and links here -->
+    <ul>
+        <li><a href="{% url 'custom_dashboard' %}">Custom Dashboard</a></li>
+    </ul>
+{% endblock %}

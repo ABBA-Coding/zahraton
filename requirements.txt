@@ -49,3 +49,7 @@ celery==5.3.1  # pyup: < 6.0  # https://github.com/celery/celery
 django-celery-beat==2.5.0  # https://github.com/celery/django-celery-beat
 SQLAlchemy==2.0.21
 PyAMQP==0.1.0.7
+redis==5.0.1
+qrcode==7.4.2
+django-jazzmin==2.6.0
+sentry-sdk==1.31.0

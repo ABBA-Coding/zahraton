@@ -3,6 +3,7 @@ from rest_framework import generics
 from apps.telegram_bot.models import *
 from .serializers import *
 from rest_framework.response import Response
+from django.db.models import Q, Case, When, F, IntegerField
 
 
 class GetUserView(generics.ListAPIView):
@@ -30,3 +31,48 @@ class AddUserView(generics.CreateAPIView):
     queryset = TelegramUser.objects.all()
     serializer_class = TelegramUserSerializer
 
+
+class AddChatView(generics.CreateAPIView):
+    queryset = TelegramChat.objects.all()
+    serializer_class = TelegramChatSerializer
+
+    def perform_create(self, serializer):
+        # Check if a chat with the same criteria already exists
+        chat_criteria = {
+            'telegram_id': serializer.validated_data['user_id']
+            # Add other criteria as needed
+        }
+        existing_chat, created = TelegramChat.objects.get_or_create(**chat_criteria)
+        return existing_chat
+
+
+class NewsListView(generics.ListAPIView):
+    serializer_class = NewsListSerializer
+
+    def get_queryset(self):
+        user_id = self.request.query_params.get('user_id')
+        user_info = TelegramUser.objects.filter(telegram_id=user_id).first()
+        if user_info:
+            age = user_info.age
+            gender = user_info.gender
+            queryset = News.objects.filter(
+                Q(for_gender='Hamma uchun') | Q(for_gender=gender),
+                min_age__lte=age,
+                max_age__gte=age,
+                active=True
+            ).prefetch_related("newsshots_set").order_by('-id')
+
+            queryset = queryset.annotate(max_age_adjusted=Case(
+                When(max_age=0, then=1000),
+                default=F('max_age'),
+                output_field=IntegerField()
+            ))
+
+            return queryset
+
+        return News.objects.none()
+
+
+class SaleListView(generics.ListAPIView):
+    serializer_class = SaleListSerializer
+    queryset = Sale.objects.prefetch_related("saleshots_set").order_by('-id')

@@ -13,6 +13,7 @@ from django.urls import reverse_lazy
 from datetime import datetime
 from django.db.models import Q
 
+from django.contrib.auth.decorators import login_required
 
 
 @login_required(login_url="/login/")
@@ -39,7 +40,7 @@ def index(request):
         'cashbacks': []
     }
 
-    html_template = loader.get_template('home/index.html')
+    html_template = loader.get_template('admin/dashboard.html')
     return HttpResponse(html_template.render(context, request))
 
 
@@ -121,9 +122,7 @@ def news_detail(request, pk):
         if form.is_valid():
             form.save()
             return redirect('news')
-    else:
-        form = NewsForm(instance=news)
-
+    form = NewsForm(instance=news)
     return render(request,
                   'home/news_detail.html',
                   {'form': form, 'news': news, 'segment': 'news'})
@@ -135,9 +134,7 @@ def news_create(request):
         if form.is_valid():
             form.save()
             return redirect('news')
-    else:
-        form = NewsForm()
-
+    form = NewsForm()
     return render(request,
                   'home/news_create.html',
                   {'form': form, 'segment': 'news'})

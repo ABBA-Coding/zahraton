@@ -38,7 +38,7 @@ async def oferta_confirm():
     return markup
 
 
-async def year_keyboard(years):
+def year_keyboard(years):
     inline_keyboard = []
     for i in years:
         inline_keyboard.append([InlineKeyboardButton(text=f"{i}", callback_data=i)])

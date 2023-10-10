@@ -17,7 +17,6 @@ def send_notifications(text, chat_id, photo_url):
     response = requests.post(url, files=files, data=data)
     return response.status_code
 
-
 @shared_task()
 def send_notifications_task(notification_id):
     notification = Notification.objects.filter(pk=notification_id).first()

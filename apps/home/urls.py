@@ -2,7 +2,6 @@ from django.urls import path
 from apps.home import views
 
 urlpatterns = [
-    path('', views.index, name='home'),
     path('sales/', views.sales_view, name='sales'),
     path('sales_update/<int:pk>', views.sale_detail, name='sale_update'),
     path('sales_delete/<int:pk>', views.SaleDelete.as_view(), name='sale_delete'),

@@ -1,0 +1,11 @@
+/* Resize the site_logo to a specific width and height */
+#header .navbar-header img.site_logo {
+    width: 10px; /* Adjust to your desired width */
+    height: auto; /* Maintain aspect ratio */
+}
+
+/* Alternatively, you can specify the height instead */
+#header .navbar-header img.site_logo {
+    height: 10px; /* Adjust to your desired height */
+    width: auto; /* Maintain aspect ratio */
+}

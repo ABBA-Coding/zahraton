@@ -1,3 +1,5 @@
+import logging
+
 from aiogram import types
 from aiogram.dispatcher import FSMContext
 from loader import dp, bot
@@ -22,12 +24,11 @@ async def isValid(s):
 
 
 @dp.message_handler(commands=['start'], state='*')
-async def start_func(message: types.Message, state: FSMContext):
-    await add_chat(message.from_user.id)
-    user = await get_user(message.from_user.id)
-    print(message.from_user.id)
-    if user['status'] and user is not None:
-        keyboard = await menu_keyboard()
+async def start_func(message: types.Message, state: FSMContext, db: Database):
+    await db.add_chat(message.from_user.id)
+    user = await db.get_user(message.from_user.id)
+    if user and user['status'] is not False:
+        keyboard = menu_keyboard()
         await message.answer("Zahratun supermarket botiga xush kelibsiz.\n\nBotda aksiyalar, yangiliklar, Zahratun "
                              "kartangiz balansi, foydali ma’lumotlar va izoh bildirish bo’limini topa olasiz. \n\n"
                              "Oilamizga marhamat 💚",
@@ -42,7 +43,7 @@ async def start_func(message: types.Message, state: FSMContext):
 @dp.message_handler(state='get_name')
 async def get_name(message: types.Message, state: FSMContext):
     await state.update_data(name=message.text)
-    keyboard = await gender_keyboard()
+    keyboard = gender_keyboard()
     await message.answer('Iltimos jinsingizni kiriting 👇', reply_markup=keyboard)
     await state.set_state('get_gender')
 
@@ -64,7 +65,7 @@ async def get_name(message: types.Message, state: FSMContext):
         # await message.answer('Iltimos manzilingizni ulashing 👇', reply_markup=keyboard)
         # await state.set_state('get_location')
         await state.update_data(longitude=0, latitude=0)
-        keyboard = await phone_keyboard()
+        keyboard = phone_keyboard()
         await message.answer("Telefon raqamingizni xalqaro formatda(998YYXXXXXXX) kiriting. Yoki raqamni ulashing 👇",
                              reply_markup=keyboard)
         await state.set_state('get_phone')
@@ -80,12 +81,12 @@ async def get_name(message: types.Message, state: FSMContext):
         Latitude = str(location.latitude)
         Longitude = str(location.longitude)
         await state.update_data(longitude=Longitude, latitude=Latitude)
-        keyboard = await phone_keyboard()
+        keyboard = phone_keyboard()
         await message.answer("Telefon raqamingizni xalqaro formatda(998YYXXXXXXX) kiriting. Yoki raqamni ulashing 👇",
                              reply_markup=keyboard)
         await state.set_state('get_phone')
     else:
-        keyboard = await location_send()
+        keyboard = location_send()
         await message.answer('Iltimos manzilingizni kiriting 👇', reply_markup=keyboard)
 
 
@@ -109,14 +110,18 @@ async def get_phone(message: types.Message, state: FSMContext):
 
 
 @dp.callback_query_handler(state='confir_oferta')
-async def get_confirm(call: types.CallbackQuery, state: FSMContext):
+async def get_confirm(call: types.CallbackQuery, state: FSMContext, db: Database):
     call_data = call.data
     if call_data == 'confirm':
         data = await state.get_data()
-        keyboard = await menu_keyboard()
-        user = await register_new_user(phone=data['phone'], gender=data['gender'], name=data['name'],
-                                       user_id=call.from_user.id, longitude=data['longitude'],
-                                       latitude=data['latitude'], birth=data['birth'])
+        keyboard = menu_keyboard()
+        gender_mapper = {
+            " Erkak": "👨‍💼 Erkaklar uchun",
+            " Ayol": "👩‍💼 Ayollar uchun"
+        }
+        await db.register_new_user(phone=data['phone'], gender=gender_mapper[data['gender']], name=data['name'],
+                                   user_id=call.from_user.id, longitude=data['longitude'],
+                                   latitude=data['latitude'], birth=data['birth'])
         await call.message.delete()
         await bot.send_message(chat_id=call.from_user.id,
                                text="👋 Bosh menyuga xush kelibsiz\nPastdagi tugmalar orqali kerakli buyruqni tanlang",
@@ -126,4 +131,3 @@ async def get_confirm(call: types.CallbackQuery, state: FSMContext):
         await call.message.delete()
         await bot.send_message(chat_id=call.from_user.id, text="Botni ishga tushurish uchun /start tugmasini bosing",
                                reply_markup=ReplyKeyboardRemove())
-

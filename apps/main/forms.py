@@ -98,8 +98,27 @@ class NotificationForm(forms.ModelForm):
     image = forms.ImageField(
       widget=forms.FileInput()
     )
+    image2 = forms.ImageField(
+        widget=forms.FileInput(),
+        required=False
+    )
+
+    image3 = forms.ImageField(
+        widget=forms.FileInput(),
+        required=False
+    )
+
+    image4 = forms.ImageField(
+        widget=forms.FileInput(),
+        required=False
+    )
+
+    image5 = forms.ImageField(
+        widget=forms.FileInput(),
+        required=False
+    )
 
     class Meta:
         model = Notification
-        fields = ['description', 'image']
+        fields = "__all__"
 

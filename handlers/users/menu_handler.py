@@ -8,214 +8,195 @@ import qrcode
 from aiogram.types import InputFile
 
 
+async def get_sales_by_index(m: types.Message, index: int, db: Database, debug: bool, next: bool = False):
+    sale = await db.get_active_sales_all()
+    if next:
+        index = abs(index + 1) % len(sale[0])
+
+    if sale:
+        sale = sale[0][index]
+        text = f"🔥 {sale['name']}\n\n 🎁{sale['description']} "
+
+        if sale["saleshots_set"]:
+            media_group = []
+            for sale_obj in sale['saleshots_set']:
+                photo = (open(f"{sale_obj['image'].replace('http://localhost:8000/', '')}", 'rb') if debug is True
+                         else sale_obj['image'])
+                media_group += [
+                    types.InputMediaPhoto(media=photo, caption=text),
+                ]
+                text = None
+            await bot.send_media_group(chat_id=m.from_user.id, media=media_group)
+        else:
+            await m.answer(text)
+        return index
+
+
+async def get_news_by_index(m: types.Message, index: int, db: Database, debug: bool, next: bool = False):
+    news = await db.get_news(m.from_user.id)
+    print(news, len(news))
+    if next:
+        print(len(news), "$$$$$$$$", index)
+        index = abs(index + 1) % len(news[0])
+
+    if news:
+        news = news[0][index]
+        text = f"🔥 {news['name']}\n\n 🎁{news['description']} "
+
+        if news["newsshots_set"]:
+            media_group = []
+            for sale_obj in news['newsshots_set']:
+                photo = (open(f"{sale_obj['image'].replace('http://localhost:8000/', '')}", 'rb') if debug is True
+                         else sale_obj['image'])
+                media_group += [
+                    types.InputMediaPhoto(media=photo, caption=text),
+                ]
+                text = None
+            await bot.send_media_group(chat_id=m.from_user.id, media=media_group)
+        else:
+            await m.answer(text)
+        return index
+
+
 @dp.message_handler(state='user_menu')
-async def menu(message: types.Message, state: FSMContext):
+async def menu(message: types.Message, state: FSMContext, debug: bool, db: Database):
     await state.update_data(action='menu')
-    user = await get_user(user_id=message.from_user.id)
+
     if message.text == "💰 Mening hisobim (bonuslarim)":
-        keyboard = await menu_keyboard()
-        cashbacks = await get_user_balance(user['phone'])
-        formatted_total = "{:,.3f}".format(float(cashbacks['balance']) / 1000).replace(",", ".") if cashbacks['balance'] >= 1000 else int(cashbacks['balance'])
+        user = await db.get_user(user_id=message.from_user.id)
+        keyboard = menu_keyboard()
+        cashbacks = await db.get_user_balance(user['phone'])
+        formatted_total = "{:,.3f}".format(float(cashbacks['balance']) / 1000).replace(",", ".") if cashbacks[
+                                                                                                        'balance'] >= 1000 else int(
+            cashbacks['balance'])
         text = f"\n\n💵 Hozirgi keshbek: <b>{formatted_total}</b> UZS"
         await message.answer(text, reply_markup=keyboard)
     if message.text == "🎁 Aksiyalar":
         await state.update_data(sale_id=0)
-        back_keyboard = await back_key()
-        await message.answer("Hozirda aktiv bo'lgan aksiyalar 👇", reply_markup=back_keyboard)
-        sale = await get_active_sales_all()
+        await message.answer("Hozirda aktiv bo'lgan aksiyalar 👇", reply_markup=move_reply_keyboard())
         await state.set_state('aksiya')
-        if sale:
-            sale = sale[0]
-            text = f"🔥 {sale.name}\n\n 🎁{sale.description} "
-            keyboard = await move_keyboard()
-            photo = open(f"/var/www/zahraton.itlink.uz/media/{sale.ImageURL}", 'rb')
-            await message.answer_photo(photo=photo, caption=text, reply_markup=keyboard)
+        await get_sales_by_index(message, 0, db, debug)
+    if message.text == "📰 Yangiliklar":
+        await state.update_data(new_id=0)
+        await message.answer("💥 Yangiliklar 👇", reply_markup=move_reply_keyboard())
+        await state.set_state('news_move')
+        await get_news_by_index(message, 0, db, debug)
+
     if message.text == "📝 Taklif va shikoyatlar":
-        keyboard = await back_key()
+        keyboard = back_key()
         await message.answer("Iltimos taklif va shikoyatlaringiz haqida imkon boricha batafsil so‘zlab bering "
                              "va zarur bo‘lsa surat jo‘nating)\n\nHar bir taklif va shikoyatingiz biz uchun juda "
                              "katta ahamiyatga ega. Xabaringiz javobsiz qolmaydi.",
                              reply_markup=keyboard)
         await state.set_state("get_comment")
     if message.text == '🔄 QR kod':
-        print(user)
-        balance = await get_user_balance(user['phone'])
-        user_uuid = get_api_uuid(user['phone'])
+        user = await db.get_user(user_id=message.from_user.id)
+        balance = await db.get_user_balance(user['phone'])
+        user_uuid = await db.get_api_uuid(user['phone'])
         q = qrcode.make(f'{user_uuid}')
         q.save('qrcode.png')
-        keyboard = await menu_keyboard()
+        keyboard = menu_keyboard()
         photo = open('qrcode.png', 'rb')
-        formatted_total = "{:,.3f}".format(float(balance['balance']) / 1000).replace(",", ".") if balance['balance'] >= 1000 else int(balance['balance'])
+        formatted_total = ("{:,.3f}".format(float(balance['balance']) / 1000).replace(",", ".") if
+                           balance['balance'] >= 1000 else int(balance['balance']))
 
         await message.answer_photo(photo=photo, caption=f"Sizning keshbekingizni ishlatish uchun QR kodingiz "
                                                         f"👆\n\n💵 Hozirgi keshbekingiz: <b>{formatted_total}</b> UZS",
                                    reply_markup=keyboard)
     if message.text == "💳 To'lovlar tarixi":
         await message.answer(text='⏳', reply_markup=ReplyKeyboardRemove())
-        user = await get_user(message.from_user.id)
-        await get_user_orders(phone=user['phone'])
-        years = await get_order_years(user['phone'])
+        user = await db.get_user(message.from_user.id)
+        years = await db.get_user_orders(user['phone'])
         await bot.delete_message(chat_id=message.from_user.id, message_id=message.message_id + 1)
-        markup = await year_keyboard(years)
+        markup = year_keyboard(years)
         await message.answer(text='Kerakli yilni tanlang 👇', reply_markup=markup)
         await state.set_state('get_year_')
-        # page = 0
-        # text = "To'lovlar tarixi bo'limi\n"
-        # back_keyboard = await back_key()
-        # await message.answer(text, reply_markup=back_keyboard)
-        # if orders:
-        #     text = ''
-        #     i = 1
-        #     for order in orders:
-        #         datetime_obj = datetime.strptime(order['chequeDate'].split('.')[0], "%Y-%m-%dT%H:%M:%S")
-        #         formatted_datetime = datetime_obj.strftime("%d.%m.%Y %H:%M")
-        #         text += f"\n\n{i}) 📆 Sana: {formatted_datetime}\n    💲 Jami: {order['totalAmount']}" \
-        #                 f"\n    ❇️ Bonus orqali to'langan summa: {order['writeOff']}"
-        #         for order_detail in order['products']:
-        #             text += f"\n      {order_detail['name']} ✖️ {order_detail['quantity']}\n      Summa: {order_detail['amount']}"
-        #         i += 1
-        #     await state.update_data(index=i, page=page, back_index=1, len_last_orders=len(orders))
-        #     keyboard = await move_keyboard()
-        #     try:
-        #         await message.answer(text, reply_markup=keyboard)
-        #     except:
-        #         await message.answer(text[:4000])
-        #         await message.answer(text[4000:], reply_markup=keyboard)
-        #
-        #     await state.set_state('order_history')
-        # else:
-        #     keyboard = await menu_keyboard()
-        #     text = "Hozircha to'lovlar tarixingiz bo'sh ⚠️"
-        #     await message.answer(text, reply_markup=keyboard)
-        #     await state.set_state('user_menu')
-
-    if message.text == "📰 Yangiliklar":
-        await state.update_data(new_id=0)
-        back_keyboard = await back_key()
-        await message.answer("💥 Yangiliklar 👇", reply_markup=back_keyboard)
-        news = await get_news(message.from_user.id)
-        await state.set_state('news_move')
-        if news:
-            news = news[0]
-            text = f"🔥 {news.name}\n\n{news.description} "
-            keyboard = await move_keyboard()
-            photo = open(f"/var/www/zahraton.itlink.uz/media/{news.ImageURL}", 'rb')
-            # photo = open(f"./files/{news.ImageURL}", 'rb')
-            media_group = [
-                types.InputMediaPhoto(media=photo, caption='Caption for image 1'),
-                ]
-            # if news.image2:
-            #     photo2 = open(f"/var/www/zahraton.itlink.uz/media/{news.Image2URL}", 'rb')
-            #     # photo2 = open(f"./files/{news.Image2URL}", 'rb')
-            #     media_group += [
-            #         types.InputMediaPhoto(media=photo2),
-            #     ]
-            # if news.image3:
-            #     # photo3 = open(f"/var/www/zahraton.itlink.uz/media/{news.Image3URL}", 'rb')
-            #     photo3 = open(f"./files/{news.Image3URL}", 'rb')
-            #     media_group += [
-            #         types.InputMediaPhoto(media=photo3),
-            #     ]
-            # if news.image4:
-            #     # photo4 = open(f"/var/www/zahraton.itlink.uz/media/{news.Image4URL}", 'rb')
-            #     photo4 = open(f"./files/{news.Image4URL}", 'rb')
-            #     media_group += [
-            #         types.InputMediaPhoto(media=photo4),
-            #     ]
-            # if news.image5:
-            #     # photo5 = open(f"/var/www/zahraton.itlink.uz/media/{news.Image5URL}", 'rb')
-            #     photo5 = open(f"./files/{news.Image5URL}", 'rb')
-            #     media_group += [
-            #         types.InputMediaPhoto(media=photo5),
-            #     ]
-            await message.answer_photo(photo=photo, caption=text, reply_markup=keyboard)
-            # await bot.send_media_group(chat_id=`chat_id`, media=media_group)
 
 
 @dp.message_handler(state="get_comment", content_types=types.ContentType.ANY)
-async def get_comment(message: types.Message, state: FSMContext):
-    user = await get_user(message.from_user.id)
+async def get_comment(message: types.Message, state: FSMContext, db: Database):
+    user = await db.get_user(message.from_user.id)
     if message.photo:
         photo = message.photo[-1].file_id
         await state.update_data(photo_id=photo)
         if message.caption:
             text = ''
-            text += f"👤 Mijoz: {user.full_name}\n"
+            text += f"👤 Mijoz: {user['full_name']}\n"
             text += f"👤 Profil: @{message.from_user.username}\n" if message.from_user.username is not None else f"👤 Profil: T.me/+{user['phone']}\n"
             text += f"📞 Telefon raqam: +{user['phone']}\n"
             text += f"\n✍️ Xabar: <b>{message.caption}</b>"
-            keyboard = await menu_keyboard()
+            keyboard = menu_keyboard()
             await bot.send_photo(photo=photo, chat_id=-1001669827084, caption=text)
             await message.answer("Murojaatingiz o'rganish uchun mutaxassisimizga yetkazildi\n"
                                  "Kerakli bo'limni tanlang", reply_markup=keyboard)
             await state.set_state("user_menu")
         else:
-            keyboard = await comment_keyboard(type='text')
+            keyboard = comment_keyboard(type='text')
             await message.answer(text="Xarabringizga izoh qo'shishni istaysizmi?", reply_markup=keyboard)
             await state.set_state('get_comment_caption')
     if message.text:
         await state.update_data(comment_text=message.text)
-        keyboard = await comment_keyboard(type='photo')
+        keyboard = comment_keyboard(type='photo')
         await message.answer(text="Xabaringizga rasm qo'shishni istaysizmi?", reply_markup=keyboard)
         await state.set_state('get_comment_photo')
 
 
 @dp.message_handler(state="get_comment_caption", content_types=types.ContentType.TEXT)
-async def get_comment_last(message: types.Message, state: FSMContext):
-    user = await get_user(message.from_user.id)
+async def get_comment_last(message: types.Message, state: FSMContext, db: Database):
+    user = await db.get_user(message.from_user.id)
     if message.text == "✅ Jo'natish":
         data = await state.get_data()
         photo = data['photo_id']
         text = ''
-        text += f"👤 Mijoz: {user.full_name}\n"
+        text += f"👤 Mijoz: {user['full_name']}\n"
         text += f"👤 Profil: @{message.from_user.username}\n" if message.from_user.username is not None else f"👤 Profil: T.me/+{user['phone']}\n"
         text += f"📞 Telefon raqam: +{user['phone']}\n"
-        keyboard = await menu_keyboard()
+        keyboard = menu_keyboard()
         await bot.send_photo(photo=photo, chat_id=-1001669827084, caption=text)
         await message.answer("Murojaatingiz o'rganish uchun mutaxassisimizga yetkazildi\n"
                              "Kerakli bo'limni tanlang", reply_markup=keyboard)
         await state.set_state("user_menu")
     if message.text == "✍️ Izoh qo'shish":
-        keyboard = await back_key()
+        keyboard = back_key()
         await message.answer(text="Xabaringizni yuboring", reply_markup=keyboard)
         await state.set_state('get_comment_caption_photo')
 
 
 @dp.message_handler(state="get_comment_photo", content_types=types.ContentType.TEXT)
-async def get_comment_last(message: types.Message, state: FSMContext):
-    user = await get_user(message.from_user.id)
+async def get_comment_last2(message: types.Message, state: FSMContext, db: Database):
+    user = await db.get_user(message.from_user.id)
     if message.text == "✅ Jo'natish":
         data = await state.get_data()
         comment = data['comment_text']
         text = ''
-        text += f"👤 Mijoz: {user.full_name}\n"
+        text += f"👤 Mijoz: {user['full_name']}\n"
         text += f"👤 Profil: @{message.from_user.username}\n" if message.from_user.username is not None else f"👤 Profil: T.me/+{user['phone']}\n"
         text += f"📞 Telefon raqam: +{user['phone']}\n"
         text += f"\n✍️ Xabar: <b>{comment}</b>"
-        keyboard = await menu_keyboard()
+        keyboard = menu_keyboard()
         await bot.send_message(chat_id=-1001669827084, text=text)
         await message.answer("Murojaatingiz o'rganish uchun mutaxassisimizga yetkazildi\n"
                              "Kerakli bo'limni tanlang", reply_markup=keyboard)
         await state.set_state("user_menu")
     if message.text == "🖼 Rasm qo'shish":
-        keyboard = await back_key()
+        keyboard = back_key()
         await message.answer(text="Rasmni yuboring", reply_markup=keyboard)
         await state.set_state('get_comment_caption_photo')
 
 
 @dp.message_handler(state="get_comment_caption_photo", content_types=types.ContentType.PHOTO)
-async def get_comment_last(message: types.Message, state: FSMContext):
-    user = await get_user(message.from_user.id)
+async def get_comment_last3(message: types.Message, state: FSMContext, db: Database):
+    user = await db.get_user(message.from_user.id)
     photo = message.photo[-1].file_id
     data = await state.get_data()
     comment = data['comment_text']
     await state.update_data(photo_id=photo)
     text = ''
-    text += f"👤 Mijoz: {user.full_name}\n"
+    text += f"👤 Mijoz: {user['full_name']}\n"
     text += f"👤 Profil: @{message.from_user.username}\n" if message.from_user.username is not None else f"👤 Profil: T.me/+{user['phone']}\n"
     text += f"📞 Telefon raqam: +{user['phone']}\n"
     text += f"\n✍️ Xabar: <b>{comment}</b>"
-    keyboard = await menu_keyboard()
+    keyboard = menu_keyboard()
     await bot.send_photo(photo=photo, chat_id=-1001669827084, caption=text)
     await message.answer("Murojaatingiz o'rganish uchun mutaxassisimizga yetkazildi\n"
                          "Kerakli bo'limni tanlang", reply_markup=keyboard)
@@ -223,78 +204,45 @@ async def get_comment_last(message: types.Message, state: FSMContext):
 
 
 @dp.message_handler(state="get_comment_caption_photo", content_types=types.ContentType.TEXT)
-async def get_comment_last(message: types.Message, state: FSMContext):
-    user = await get_user(message.from_user.id)
+async def get_comment_last4(message: types.Message, state: FSMContext, db: Database):
+    user = await db.get_user(message.from_user.id)
     data = await state.get_data()
     photo = data['photo_id']
     caption = message.text
     text = ''
-    text += f"👤 Mijoz: {user.full_name}\n"
+    text += f"👤 Mijoz: {user['full_name']}\n"
     text += f"👤 Profil: @{message.from_user.username}\n" if message.from_user.username is not None else f"👤 Profil: T.me/+{user['phone']}\n"
     text += f"📞 Telefon raqam: +{user['phone']}\n"
     text += f"\n✍️ Xabar: <b>{caption}</b>"
-    keyboard = await menu_keyboard()
+    keyboard = menu_keyboard()
     await bot.send_photo(photo=photo, chat_id=-1001669827084, caption=text)
     await message.answer("Murojaatingiz o'rganish uchun mutaxassisimizga yetkazildi\n"
                          "Kerakli bo'limni tanlang", reply_markup=keyboard)
     await state.set_state("user_menu")
 
 
-@dp.callback_query_handler(state="aksiya")
-async def aksiya_handler(call: types.CallbackQuery, state: FSMContext):
+@dp.message_handler(state="aksiya")
+async def aksiya_handler(m: types.Message, state: FSMContext, db: Database, debug: bool):
     data = await state.get_data()
     indexation = int(data['sale_id'])
-    sale = await get_active_sales_all()
-    if call.data == "enter":
-        sale = sale[indexation]
-        keyboard = await sale_confirm(sale.id)
-        text = f"{sale.name} \nAksiyasiga qo'shilishni istaysizmi"
-        await call.message.edit_text(text, reply_markup=keyboard)
-        await state.set_state('sale_enter')
+    if m.text == "Keyingi ➡️":
+        indexation = await get_sales_by_index(m, indexation, db, debug, next=True)
+        await state.update_data(sale_id=indexation)
         return
-    elif call.data == "next":
-        indexation = (indexation + 1) % len(sale)
-    elif call.data == "back":
-        indexation = (indexation - 1) % len(sale)
-    sale = sale[indexation]
-    text = f"🔥 {sale.name}\n\n 🎁 {sale.description}"
-    keyboard = await move_keyboard()
-    photo = open(f"/var/www/zahraton.itlink.uz/media/{sale.ImageURL}", 'rb')
-    text = f"🔥 {sale.name}\n\n 🎁 {sale.description}"
-    keyboard = await move_keyboard()
-    await state.update_data(sale_id=indexation)
-    await bot.edit_message_media(media=types.InputMediaPhoto(media=InputFile(photo)),
-                                 chat_id=call.from_user.id,
-                                 message_id=call.message.message_id)
-    await bot.edit_message_caption(chat_id=call.from_user.id,
-                                   message_id=call.message.message_id,
-                                   caption=text,
-                                   reply_markup=keyboard)
+
     await state.set_state('aksiya')
 
 
-@dp.callback_query_handler(state="news_move")
-async def news_handler(call: types.CallbackQuery, state: FSMContext):
+@dp.message_handler(state="news_move")
+async def news_handler(m: types.Message, state: FSMContext, debug: bool, db: Database):
     data = await state.get_data()
     indexation = int(data['new_id'])
-    news = await get_news(call.from_user.id)
-    if call.data == "next":
-        indexation = (indexation + 1) % len(news)
-    elif call.data == "back":
-        indexation = (indexation - 1) % len(news)
-    news = news[indexation]
-    await state.update_data(new_id=indexation)
-    photo = open(f"/var/www/zahraton.itlink.uz/media/{news.ImageURL}", 'rb')
-    text = f"🔥 {news.name}\n\n{news.description}"
-    keyboard = await move_keyboard()
-    await bot.edit_message_media(media=types.InputMediaPhoto(media=InputFile(photo)),
-                                 chat_id=call.from_user.id,
-                                 message_id=call.message.message_id)
-    await bot.edit_message_caption(chat_id=call.from_user.id,
-                                   message_id=call.message.message_id,
-                                   caption=text,
-                                   reply_markup=keyboard)
+    if m.text == "Keyingi ➡️":
+        indexation = await get_news_by_index(m, indexation, db, debug, next=True)
+        await state.update_data(new_id=indexation)
+        return
     await state.set_state('news_move')
+
 
 # @dp.callback_query_handler(state="order_history")
 # async def order_history(call: types.CallbackQuery, state: FSMContext):
@@ -382,31 +330,31 @@ async def news_handler(call: types.CallbackQuery, state: FSMContext):
 
 
 @dp.callback_query_handler(state="get_year_")
-async def get_year(call: types.CallbackQuery, state: FSMContext):
+async def get_year(call: types.CallbackQuery, state: FSMContext, db: Database):
     data = call.data
     if data != 'back_menu':
-        user = await get_user(call.from_user.id)
-        dates = await get_order_month(phone=user['phone'], year=data)
+        user = await db.get_user(call.from_user.id)
+        dates = await db.get_order_month(phone=user['phone'], year=data)
         markup = await month_keyboard(dates)
         await call.message.edit_text(text='Kerakli oyni tanlang 👇', reply_markup=markup)
         await state.update_data(year=data)
         await state.set_state('get_month_')
     else:
         await call.message.delete()
-        markup = await menu_keyboard()
+        markup = menu_keyboard()
         await state.finish()
         await bot.send_message(chat_id=call.from_user.id, text='Kerakli buyruqni tanlang 👇', reply_markup=markup)
         await state.set_state('user_menu')
 
 
 @dp.callback_query_handler(state="get_month_")
-async def get_year(call: types.CallbackQuery, state: FSMContext):
+async def get_year(call: types.CallbackQuery, state: FSMContext, db: Database):
     data = call.data
     state_data = await state.get_data()
     if data != 'back_menu':
         await call.message.delete()
-        user = await get_user(call.from_user.id)
-        orders = await get_orders_by_month(phone=user['phone'], year=state_data["year"], month=data)
+        user = await db.get_user(call.from_user.id)
+        orders = await db.get_orders_by_month(phone=user['phone'], year=state_data["year"], month=data)
         i = 1
         for order in orders:
             text = ''
@@ -414,25 +362,29 @@ async def get_year(call: types.CallbackQuery, state: FSMContext):
             formatted_datetime = datetime_obj.strftime("%d.%m.%Y %H:%M")
             text += f"\n\n{i}) 📆 <b>Sana</b>: {formatted_datetime}\n"
             for order_detail in order['products']:
-                formatted_amount = "{:,.3f}".format(float(order_detail['amount']) / 1000).replace(",", ".") if order_detail['amount'] >= 1000 else int(order_detail['amount'])
+                formatted_amount = "{:,.3f}".format(float(order_detail['amount']) / 1000).replace(",", ".") if \
+                    order_detail['amount'] >= 1000 else int(order_detail['amount'])
 
                 text += f"\n🛒 {order_detail['name']} ✖️ {order_detail['quantity']} = <b>{formatted_amount}</b> UZS\n"
-            formatted_total = "{:,.3f}".format(float(order['totalAmount']) / 1000).replace(",", ".") if order['totalAmount'] >= 1000 else int(order['totalAmount'])
-            formatted_bonus = "{:,.3f}".format(float(order['writeOff']) / 1000).replace(",", ".") if order['writeOff'] >= 1000 else int(order['writeOff'])
+            formatted_total = "{:,.3f}".format(float(order['totalAmount']) / 1000).replace(",", ".") if order[
+                                                                                                            'totalAmount'] >= 1000 else int(
+                order['totalAmount'])
+            formatted_bonus = "{:,.3f}".format(float(order['writeOff']) / 1000).replace(",", ".") if order[
+                                                                                                         'writeOff'] >= 1000 else int(
+                order['writeOff'])
             text += f"\n\n💲 <b>Jami</b>: <b>{formatted_total}</b> UZS" \
                     f"\n💳 <b>Bonus orqali to'langan summa</b>: {formatted_bonus} UZS\n"
             i += 1
-            chunks = [text[i:i+4096] for i in range(0, len(text), 4096)]
+            chunks = [text[i:i + 4096] for i in range(0, len(text), 4096)]
             for chunk in chunks:
                 await bot.send_message(chat_id=call.from_user.id, text=chunk)
-        years = await get_order_years(user['phone'])
-        markup = await year_keyboard(years)
+        years = await db.get_user_orders(user['phone'])
+        markup = year_keyboard(years)
         await bot.send_message(chat_id=call.from_user.id, text='Kerakli yilni tanlang 👇', reply_markup=markup)
         await state.set_state('get_year_')
     else:
-        user = await get_user(call.from_user.id)
-        await get_user_orders(phone=user['phone'])
-        years = await get_order_years(user['phone'])
-        markup = await year_keyboard(years)
+        user = await db.get_user(call.from_user.id)
+        years = await db.get_user_orders(user['phone'])
+        markup = year_keyboard(years)
         await call.message.edit_text(text='Kerakli yilni tanlang 👇', reply_markup=markup)
         await state.set_state('get_year_')
