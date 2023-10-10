@@ -1,13 +1,10 @@
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardMarkup, KeyboardButton, \
-    ReplyKeyboardRemove
-from aiogram.utils.callback_data import CallbackData
-from apps.main.models import *
+from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
 
 def phone_keyboard():
     keyboard = ReplyKeyboardMarkup()
     key1 = KeyboardButton(text=f"📞 Raqamni ulashish", request_contact=True)
-    key2 = KeyboardButton(text=f"⬅️ Orqaga")
+    # key2 = KeyboardButton(text=f"⬅️ Orqaga")
     keyboard.add(key1)
     keyboard.resize_keyboard = True
     return keyboard

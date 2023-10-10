@@ -1,7 +1,4 @@
-from asgiref.sync import sync_to_async
-from apps.main.models import Sale
 from aiohttp import ClientSession, ClientResponseError, ClientError
-import requests
 
 
 class Database:
