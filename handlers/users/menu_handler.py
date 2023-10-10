@@ -16,7 +16,9 @@ async def get_sales_by_index(m: types.Message, index: int, db: Database, debug: 
         index = abs(index + 1) % len(sale[0])
 
     if sale:
-        sale = sale[0][index]
+        sale = sale[0]
+        if sale:
+            sale = sale[index]
         text = f"🔥 {sale['name']}\n\n 🎁{sale['description']} "
 
         if sale["saleshots_set"]:
@@ -42,7 +44,9 @@ async def get_news_by_index(m: types.Message, index: int, db: Database, debug: b
         index = abs(index + 1) % len(news[0])
 
     if news:
-        news = news[0][index]
+        news = news[0]
+        if news:
+            news = news[index]
         text = f"🔥 {news['name']}\n\n 🎁{news['description']} "
 
         if news["newsshots_set"]:
