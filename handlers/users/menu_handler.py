@@ -10,7 +10,8 @@ import qrcode
 from aiogram.types import ReplyKeyboardRemove
 
 
-async def get_sales_by_index(m: types.Message, index: int, db: Database, debug: bool, next: bool = False):
+async def get_sales_by_index(m: types.Message, index: int, db: Database, debug: bool, wait_msg: types.Message,
+                             next: bool = False):
     sale = await db.get_active_sales_all()
     if next:
         index = abs(index + 1) % len(sale[0])
@@ -35,10 +36,12 @@ async def get_sales_by_index(m: types.Message, index: int, db: Database, debug: 
                 await m.answer_media_group(media=media_group)
             else:
                 await m.answer(text)
+            await wait_msg.delete()
             return index
 
 
-async def get_news_by_index(m: types.Message, index: int, db: Database, debug: bool, next: bool = False):
+async def get_news_by_index(m: types.Message, index: int, db: Database, debug: bool, wait_msg: types.Message,
+                            next: bool = False):
     news = await db.get_news(m.from_user.id)
     if next:
         index = abs(index + 1) % len(news[0])
@@ -63,6 +66,7 @@ async def get_news_by_index(m: types.Message, index: int, db: Database, debug: b
                 await bot.send_media_group(chat_id=m.from_user.id, media=media_group)
             else:
                 await m.answer(text)
+            await wait_msg.delete()
             return index
 
 
@@ -82,13 +86,15 @@ async def menu(message: types.Message, state: FSMContext, debug: bool, db: Datab
     if message.text == "🎁 Aksiyalar":
         await state.update_data(sale_id=0)
         await message.answer("Hozirda aktiv bo'lgan aksiyalar 👇", reply_markup=move_reply_keyboard())
+        wait_msg = await message.answer(text='⏳')
         await state.set_state('aksiya')
-        await get_sales_by_index(message, 0, db, debug)
+        await get_sales_by_index(message, 0, db, debug, wait_msg)
     if message.text == "📰 Yangiliklar":
         await state.update_data(new_id=0)
         await message.answer("💥 Yangiliklar 👇", reply_markup=move_reply_keyboard())
+        wait_msg = await message.answer(text='⏳')
         await state.set_state('news_move')
-        await get_news_by_index(message, 0, db, debug)
+        await get_news_by_index(message, 0, db, debug, wait_msg)
 
     if message.text == "📝 Taklif va shikoyatlar":
         keyboard = back_key()
@@ -234,7 +240,8 @@ async def aksiya_handler(m: types.Message, state: FSMContext, db: Database, debu
     data = await state.get_data()
     indexation = int(data['sale_id'])
     if m.text == "Keyingi ➡️":
-        indexation = await get_sales_by_index(m, indexation, db, debug, next=True)
+        wait_msg = await m.answer(text='⏳')
+        indexation = await get_sales_by_index(m, indexation, db, debug, wait_msg, next=True)
         await state.update_data(sale_id=indexation)
         return
 
@@ -246,7 +253,8 @@ async def news_handler(m: types.Message, state: FSMContext, debug: bool, db: Dat
     data = await state.get_data()
     indexation = int(data['new_id'])
     if m.text == "Keyingi ➡️":
-        indexation = await get_news_by_index(m, indexation, db, debug, next=True)
+        wait_msg = await m.answer(text='⏳')
+        indexation = await get_news_by_index(m, indexation, db, debug, wait_msg, next=True)
         await state.update_data(new_id=indexation)
         return
     await state.set_state('news_move')
