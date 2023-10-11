@@ -19,16 +19,17 @@ def send_notifications(text, chat_id, photo_url):
 
 @shared_task()
 def send_notifications_task(notification_id):
-    notification = Notification.objects.filter(pk=notification_id).first()
-    chats = TelegramChat.objects.all()
-    sended_count = 0
-    for i in chats:
-        text = notification.description
-        image_path = notification.ImageURL
-        chat_id = i.telegram_id
-        response = send_notifications(text=text, chat_id=chat_id, photo_url=image_path)
-        if response == 200:
-            sended_count += 1
-    notification.all_chats = sended_count
-    notification.status = notification.NotificationStatus.SENDED
-    notification.save()
+    # notification = Notification.objects.filter(pk=notification_id).first()
+    # chats = TelegramChat.objects.all()
+    # sended_count = 0
+    # for i in chats:
+    #     text = notification.description
+    #     image_path = notification.ImageURL
+    #     chat_id = i.telegram_id
+    #     response = send_notifications(text=text, chat_id=chat_id, photo_url=image_path)
+    #     if response == 200:
+    #         sended_count += 1
+    # notification.all_chats = sended_count
+    # notification.status = notification.NotificationStatus.SENDED
+    # notification.save()
+    ...
