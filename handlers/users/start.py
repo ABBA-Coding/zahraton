@@ -52,11 +52,14 @@ async def get_name(message: types.Message, state: FSMContext):
 
 @dp.message_handler(state='get_gender')
 async def get_name(message: types.Message, state: FSMContext):
-    await state.update_data(gender=message.text[3:])
-
-    await message.answer('Iltimos tug\'ilgan sanangizni <b>1980-12-24</b> shaklida kiriting kiriting 👇',
-                         reply_markup=ReplyKeyboardRemove())
-    await state.set_state('get_birth')
+    gender = message.text[3:]
+    if gender in [" Ayol", " Erkak"]:
+        await state.update_data(gender=message.text[3:])
+        await message.answer('Iltimos tug\'ilgan sanangizni <b>1980-12-24</b> shaklida kiriting kiriting 👇',
+                             reply_markup=ReplyKeyboardRemove())
+        await state.set_state('get_birth')
+        return
+    return await message.answer("Iltimos pasdagi tugmalardan birini tanlang 👇", reply_markup=gender_keyboard())
 
 
 @dp.message_handler(state='get_birth')
