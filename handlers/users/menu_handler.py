@@ -27,7 +27,7 @@ async def get_sales_by_index(m: types.Message, index: int, db: Database, debug: 
                 for sale_obj in sale['saleshots_set']:
                     photo = (open(f"{sale_obj['image'].replace('http://localhost:8000/', '')}", 'rb') if debug is True
                              else open(
-                        f"{sale_obj['image'].replace('https://botloyalty.zahratun.uz/', '/var/www/zahraton.itlink.uz/')}",
+                        f"{sale_obj['image'].replace('https://zahraton.itlink.uz/', '/var/www/zahraton.itlink.uz/')}",
                         'rb'))
                     media_group += [
                         types.InputMediaPhoto(media=photo, caption=text),
@@ -57,7 +57,7 @@ async def get_news_by_index(m: types.Message, index: int, db: Database, debug: b
                 for sale_obj in news['newsshots_set']:
                     photo = (open(f"{sale_obj['image'].replace('http://localhost:8000/', '')}", 'rb') if debug is True
                              else open(
-                        f"{sale_obj['image'].replace('https://botloyalty.zahratun.uz/', '/var/www/zahraton.itlink.uz/')}",
+                        f"{sale_obj['image'].replace('https://zahraton.itlink.uz/', '/var/www/zahraton.itlink.uz/')}",
                         'rb'))
                     media_group += [
                         types.InputMediaPhoto(media=photo, caption=text),
