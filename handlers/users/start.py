@@ -2,6 +2,8 @@ import logging
 
 from aiogram import types
 from aiogram.dispatcher import FSMContext
+from aiogram.types import ReplyKeyboardRemove
+
 from loader import dp, bot
 from keyboards.inline.menu_button import *
 from keyboards.inline.main_inline import *
