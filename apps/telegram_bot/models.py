@@ -15,7 +15,7 @@ class TelegramUser(models.Model):
     longitude = models.CharField(max_length=1000, null=True)
     latitude = models.CharField(max_length=1000, null=True)
     birth = models.CharField(max_length=1000, null=True)
-    register_date = models.DateField(default=timezone.now().date(), null=True, blank=True)
+    register_date = models.DateField(auto_now_add=True)
 
     @property
     def age(self):
@@ -32,4 +32,4 @@ class TelegramUser(models.Model):
 
 class TelegramChat(models.Model):
     telegram_id = models.CharField(max_length=100)
-    register_date = models.DateField(default=timezone.now, null=True, blank=True)
+    register_date = models.DateField(auto_now_add=True)
