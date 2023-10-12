@@ -124,6 +124,14 @@ class Database:
                     orders += x
         return orders
 
+    def get_order_years(self, orders):
+        years = set()
+        for obj in orders:
+            cheque_date = obj['chequeDate']
+            year = cheque_date[:4]
+            years.add(year)
+        return list(years)
+
     async def get_order_month(self, phone, year):
         data = await self.get_user_orders(phone=phone)
         months = set()

@@ -64,6 +64,6 @@ async def month_keyboard(date):
             count = 0
     if row:
         inline_keyboard.append(row)
-    inline_keyboard.append([InlineKeyboardButton(text="🔙 Orqaga", callback_data="back_menu")])
-    markup = InlineKeyboardMarkup(inline_keyboard=inline_keyboard)
-    return markup
+        inline_keyboard.append([InlineKeyboardButton(text="🔙 Orqaga", callback_data="back_menu")])
+        markup = InlineKeyboardMarkup(inline_keyboard=inline_keyboard)
+        return markup

@@ -2,6 +2,12 @@ from django.contrib import admin
 from .models import TelegramUser, TelegramChat
 
 
-admin.site.register(TelegramUser)
-admin.site.register(TelegramChat)
-# Register your models here.
+@admin.register(TelegramUser)
+class TelegramUserAdmin(admin.ModelAdmin):
+    list_display = ["telegram_id", "phone", "moneyback_id"]
+    search_fields = ["phone"]
+
+
+@admin.register(TelegramChat)
+class TelegramChatAdmin(admin.ModelAdmin):
+    list_display = ["telegram_id", "register_date"]

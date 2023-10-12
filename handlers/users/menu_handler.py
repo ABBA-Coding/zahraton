@@ -63,7 +63,7 @@ async def get_news_by_index(m: types.Message, index: int, db: Database, debug: b
                         types.InputMediaPhoto(media=photo, caption=text),
                     ]
                     text = None
-                await bot.send_media_group(chat_id=m.from_user.id, media=media_group)
+                await m.answer_media_group(media=media_group)
             else:
                 await m.answer(text)
             await wait_msg.delete()
@@ -90,10 +90,10 @@ async def menu(message: types.Message, state: FSMContext, debug: bool, db: Datab
         await state.set_state('aksiya')
         await get_sales_by_index(message, 0, db, debug, wait_msg)
     if message.text == "📰 Yangiliklar":
-        await state.update_data(new_id=0)
         await message.answer("💥 Yangiliklar 👇", reply_markup=move_reply_keyboard())
         wait_msg = await message.answer(text='⏳')
         await state.set_state('news_move')
+        await state.update_data(new_id=0)
         await get_news_by_index(message, 0, db, debug, wait_msg)
 
     if message.text == "📝 Taklif va shikoyatlar":
@@ -120,7 +120,8 @@ async def menu(message: types.Message, state: FSMContext, debug: bool, db: Datab
     if message.text == "💳 To'lovlar tarixi":
         await message.answer(text='⏳', reply_markup=ReplyKeyboardRemove())
         user = await db.get_user(message.from_user.id)
-        years = await db.get_user_orders(user['phone'])
+        orders = await db.get_user_orders(user['phone'])
+        years = await db.get_order_years(orders)
         await bot.delete_message(chat_id=message.from_user.id, message_id=message.message_id + 1)
         markup = year_keyboard(years)
         await message.answer(text='Kerakli yilni tanlang 👇', reply_markup=markup)
@@ -238,7 +239,7 @@ async def get_comment_last4(message: types.Message, state: FSMContext, db: Datab
 @dp.message_handler(state="aksiya")
 async def aksiya_handler(m: types.Message, state: FSMContext, db: Database, debug: bool):
     data = await state.get_data()
-    indexation = int(data['sale_id'])
+    indexation = int(data.get('sale_id', 0))
     if m.text == "Keyingi ➡️":
         wait_msg = await m.answer(text='⏳')
         indexation = await get_sales_by_index(m, indexation, db, debug, wait_msg, next=True)
@@ -251,7 +252,7 @@ async def aksiya_handler(m: types.Message, state: FSMContext, db: Database, debu
 @dp.message_handler(state="news_move")
 async def news_handler(m: types.Message, state: FSMContext, debug: bool, db: Database):
     data = await state.get_data()
-    indexation = int(data['new_id'])
+    indexation = int(data.get('new_id', 0))
     if m.text == "Keyingi ➡️":
         wait_msg = await m.answer(text='⏳')
         indexation = await get_news_by_index(m, indexation, db, debug, wait_msg, next=True)
@@ -394,13 +395,15 @@ async def get_year(call: types.CallbackQuery, state: FSMContext, db: Database):
             chunks = [text[i:i + 4096] for i in range(0, len(text), 4096)]
             for chunk in chunks:
                 await bot.send_message(chat_id=call.from_user.id, text=chunk)
-        years = await db.get_user_orders(user['phone'])
+        orders = await db.get_user_orders(user['phone'])
+        years = await db.get_order_years(orders)
         markup = year_keyboard(years)
         await bot.send_message(chat_id=call.from_user.id, text='Kerakli yilni tanlang 👇', reply_markup=markup)
         await state.set_state('get_year_')
     else:
         user = await db.get_user(call.from_user.id)
-        years = await db.get_user_orders(user['phone'])
+        orders = await db.get_user_orders(user['phone'])
+        years = await db.get_order_years(orders)
         markup = year_keyboard(years)
         await call.message.edit_text(text='Kerakli yilni tanlang 👇', reply_markup=markup)
         await state.set_state('get_year_')
