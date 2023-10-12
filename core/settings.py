@@ -1,3 +1,4 @@
+import logging
 import os
 import sys
 from dotenv import load_dotenv
@@ -6,7 +7,6 @@ load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 CORE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(os.path.join(BASE_DIR, "myapp"))
@@ -19,10 +19,8 @@ SECRET_KEY = 'django-insecure-_qo-xrslgusc1ixtvh477nbnpso7r(((xrs03&t0kewg6fx52d
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DJANGO_DEBUG", default=False)
-print(DEBUG)
 
 ALLOWED_HOSTS = ['*']
-
 
 INSTALLED_APPS = [
     "jazzmin",
@@ -85,17 +83,16 @@ DB_HOST = os.getenv('DB_HOST', None)
 DB_PORT = os.getenv('DB_PORT', None)
 DB_NAME = os.getenv('DB_NAME', None)
 
-
 if DB_ENGINE and DB_NAME and DB_USERNAME:
-    DATABASES = { 
-      'default': {
-        'ENGINE': 'django.db.backends.' + DB_ENGINE,
-        'NAME': DB_NAME,
-        'USER': DB_USERNAME,
-        'PASSWORD': DB_PASS,
-        'HOST': DB_HOST,
-        'PORT': DB_PORT,
-        }, 
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.' + DB_ENGINE,
+            'NAME': DB_NAME,
+            'USER': DB_USERNAME,
+            'PASSWORD': DB_PASS,
+            'HOST': DB_HOST,
+            'PORT': DB_PORT,
+        },
     }
 else:
     DATABASES = {
@@ -104,7 +101,6 @@ else:
             'NAME': 'db.sqlite3',
         }
     }
-
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': ('knox.auth.TokenAuthentication',),
@@ -129,7 +125,6 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
-
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.1/topics/i18n/
@@ -234,7 +229,7 @@ JAZZMIN_SETTINGS = {
     "topmenu_links": [
 
         # Url that gets reversed (Permissions can be added)
-        {"name": "Home",  "url": "admin:index", "permissions": ["auth.view_user"]},
+        {"name": "Home", "url": "admin:index", "permissions": ["auth.view_user"]},
 
         # external url that opens in a new window (Permissions can be added)
         {"name": "Support", "url": "https://t.me/kaireke_sultan", "new_window": True},
@@ -271,7 +266,6 @@ JAZZMIN_SETTINGS = {
     "hide_models": [],
 
     # List of apps (and/or models) to base side menu ordering off of (does not need to contain all apps/models)
-
 
     # Custom icons for side menu apps/models See https://fontawesome.com/icons?d=gallery&m=free&v=5.0.0,5.0.1,5.0.10,5.0.11,5.0.12,5.0.13,5.0.2,5.0.3,5.0.4,5.0.5,5.0.6,5.0.7,5.0.8,5.0.9,5.1.0,5.1.1,5.2.0,5.3.0,5.3.1,5.4.0,5.4.1,5.4.2,5.13.0,5.12.0,5.11.2,5.11.1,5.10.0,5.9.0,5.8.2,5.8.1,5.7.2,5.7.1,5.7.0,5.6.3,5.5.0,5.4.2
     # for the full list of 5.13.0 free icon classes
@@ -319,3 +313,60 @@ JAZZMIN_SETTINGS = {
     # Add a language dropdown into the admin
     "language_chooser": False,
 }
+if DEBUG is False:
+    try:
+        import sentry_sdk
+        from sentry_sdk.integrations.django import DjangoIntegration
+        from sentry_sdk.integrations.logging import LoggingIntegration
+    except ImportError:
+        ...
+
+    LOGGING = {
+        "version": 1,
+        "disable_existing_loggers": True,
+        "formatters": {
+            "verbose": {
+                "format": "%(levelname)s %(asctime)s %(module)s "
+                          "%(process)d %(thread)d %(message)s"
+            }
+        },
+        "handlers": {
+            "console": {
+                "level": "DEBUG",
+                "class": "logging.StreamHandler",
+                "formatter": "verbose",
+            }
+        },
+        "root": {"level": "INFO", "handlers": ["console"]},
+        "loggers": {
+            "django.db.backends": {
+                "level": "ERROR",
+                "handlers": ["console"],
+                "propagate": False,
+            },
+            # Errors logged by the SDK itself
+            "sentry_sdk": {"level": "ERROR", "handlers": ["console"], "propagate": False},
+            "django.security.DisallowedHost": {
+                "level": "ERROR",
+                "handlers": ["console"],
+                "propagate": False,
+            },
+        },
+    }
+    SENTRY_DSN = "https://f6e4d226ccd3fd78e117df332725eb12@o4504621259948032.ingest.sentry.io/4506038330130432"
+    SENTRY_LOG_LEVEL = logging.INFO
+
+    sentry_logging = LoggingIntegration(
+        level=SENTRY_LOG_LEVEL,  # Capture info and above as breadcrumbs
+        event_level=logging.ERROR,  # Send errors as events
+    )
+    integrations = [
+        sentry_logging,
+        DjangoIntegration(),
+    ]
+    sentry_sdk.init(
+        dsn=SENTRY_DSN,
+        integrations=integrations,
+        environment="production",
+        traces_sample_rate=0.0,
+    )
