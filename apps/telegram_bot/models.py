@@ -33,3 +33,4 @@ class TelegramUser(models.Model):
 class TelegramChat(models.Model):
     telegram_id = models.CharField(max_length=100)
     register_date = models.DateField(auto_now_add=True)
+    is_stopped = models.BooleanField(default=False)

@@ -12,20 +12,22 @@ def get_dashboard_stats():
     chats_in_current_month = TelegramChat.objects.filter(
         Q(register_date__year=current_date.year) &
         Q(register_date__month=current_date.month)
-    )
+    ).count()
     users_in_current_month = TelegramUser.objects.filter(
         Q(register_date__year=current_date.year) &
         Q(register_date__month=current_date.month)
-    )
+    ).count()
 
-    telegram_chats = TelegramChat.objects.all()
-    users = TelegramUser.objects.all()
+    telegram_chats_count = TelegramChat.objects.filter(is_stopped=False).count()
+    blocked_chats_count = TelegramChat.objects.filter(is_stopped=False).count()
+    users = TelegramUser.objects.all().count()
     context = {
         'segment': 'dashboard',
-        'telegram_chats': len(telegram_chats),
-        'this_month_chats': len(chats_in_current_month),
-        'this_month_users': len(users_in_current_month),
-        'users': len(users),
+        'telegram_chats': telegram_chats_count,
+        'this_month_chats': chats_in_current_month,
+        'this_month_users': users_in_current_month,
+        'users': users,
+        "blocked_chats": blocked_chats_count,
         'cashbacks': []
     }
 

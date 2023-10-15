@@ -53,9 +53,24 @@ class NotificationModelAdminForm(forms.ModelForm):
 
 @admin.register(Notification)
 class NotificationAdmin(admin.ModelAdmin):
-    list_display = ["short_description", "display_image", "status", "all_chats_count"]
+    list_display = ["short_description", "display_image", "all_chats_count", "tools_column"]
     inlines = [NotificationShotsInline]
+
     form = NotificationModelAdminForm
+
+    def tools_column(self, obj):
+        html_tag = "Jarayonda"
+        if obj.status == 0:
+            html_tag = '<a href="{0}" class="btn btn-success">Boshlash</a> '
+        elif obj.status == 1:
+            html_tag = 'Yuborildi'
+        return mark_safe(
+            html_tag.format(
+                reverse('send_notification', args=[obj.pk]),)
+            )
+
+    tools_column.short_description = 'Boshqaruv'
+    tools_column.allow_tags = True
 
     def short_description(self, obj):
         return obj.description[:100] + "..." if len(obj.description) > 100 else obj.description
@@ -85,17 +100,6 @@ class NotificationAdmin(admin.ModelAdmin):
 
     def has_delete_permission(self, request, obj=None):
         return False
-
-
-@receiver(post_save, sender=Notification)
-def run_celery_task_on_create(sender, instance, created, **kwargs):
-    if created:
-        # Call your Celery task function here
-        send_notifications_task.delay(instance.id)
-
-
-# Register the signal handler
-post_save.connect(run_celery_task_on_create, sender=Notification)
 
 
 @admin.register(News)
@@ -142,3 +146,8 @@ class SaleAdmin(admin.ModelAdmin):
 
     tools_column.short_description = 'Boshqaruv'
     tools_column.allow_tags = True
+
+
+@admin.register(NotificationShots)
+class NotificationShotsAdmin(admin.ModelAdmin):
+    ...

@@ -90,6 +90,7 @@ class Notification(models.Model):
     class NotificationStatus(models.IntegerChoices):
         CREATED = 0, "Yaratildi"
         SENDED = 1, "Bitirildi"
+        PROCEED = 2, "Jarayonda"
 
     description = RichTextField(max_length=1023, null=True, blank=True)
     status = models.IntegerField(choices=NotificationStatus.choices, default=NotificationStatus.CREATED, editable=False)

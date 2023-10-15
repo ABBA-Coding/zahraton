@@ -1,9 +1,14 @@
+from django.shortcuts import get_object_or_404, redirect
+from django.urls import reverse
+
 from .models import *
 from rest_framework import generics
 from apps.telegram_bot.models import *
 from .serializers import *
 from rest_framework.response import Response
 from django.db.models import Q, Case, When, F, IntegerField
+
+from ..home.tasks import send_notifications_task
 
 
 class GetUserView(generics.ListAPIView):
@@ -43,6 +48,8 @@ class AddChatView(generics.CreateAPIView):
             # Add other criteria as needed
         }
         existing_chat, created = TelegramChat.objects.get_or_create(**chat_criteria)
+        existing_chat.is_stopped = False
+        existing_chat.save()
         return existing_chat
 
 
@@ -76,3 +83,15 @@ class NewsListView(generics.ListAPIView):
 class SaleListView(generics.ListAPIView):
     serializer_class = SaleListSerializer
     queryset = Sale.objects.prefetch_related("saleshots_set").order_by('-id')
+
+
+def send_telegram(request, notification_id):
+    notification = get_object_or_404(Notification, id=notification_id)
+    media = []
+    for i in notification.notificationshots_set.all():
+        media.append(i.image.path)
+    notification.status = notification.NotificationStatus.PROCEED
+    notification.save()
+    send_notifications_task.delay(notification_id, notification.description, media)
+
+    return redirect(reverse('admin:main_notification_changelist'))

@@ -4,9 +4,12 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.views.generic import RedirectView
 
+from apps.main.views import send_telegram
+
 urlpatterns = [
     # Admin
     path('admin/', admin.site.urls),
+    path('send_telegram/<int:notification_id>', send_telegram, name="send_notification"),
     path('', RedirectView.as_view(url='/admin'), name="home"),
     # path('admin/logout', RedirectView.as_view(url='/admin')),
 
