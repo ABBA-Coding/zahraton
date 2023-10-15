@@ -5,16 +5,16 @@ from django.utils import timezone
 
 class TelegramUser(models.Model):
     telegram_id = models.CharField(max_length=100, db_index=True)
-    moneyback_id = models.CharField(max_length=100, null=True)
-    phone = models.CharField(max_length=100, null=True)
-    full_name = models.CharField(max_length=1000, null=True)
-    password = models.CharField(max_length=100, null=True)
-    otp = models.CharField(max_length=100, null=True)
-    gender = models.CharField(max_length=100, null=True)
-    location = models.CharField(max_length=1000, null=True)
-    longitude = models.CharField(max_length=1000, null=True)
-    latitude = models.CharField(max_length=1000, null=True)
-    birth = models.CharField(max_length=1000, null=True)
+    moneyback_id = models.CharField(max_length=100, null=True, blank=True)
+    phone = models.CharField(max_length=100, null=True, blank=True)
+    full_name = models.CharField(max_length=1000, null=True, blank=True)
+    password = models.CharField(max_length=100, null=True, blank=True)
+    otp = models.CharField(max_length=100, null=True, blank=True)
+    gender = models.CharField(max_length=100, null=True, blank=True)
+    location = models.CharField(max_length=1000, null=True, blank=True)
+    longitude = models.CharField(max_length=1000, null=True, blank=True)
+    latitude = models.CharField(max_length=1000, null=True, blank=True)
+    birth = models.CharField(max_length=1000, null=True, blank=True)
     register_date = models.DateField(auto_now_add=True)
 
     @property
