@@ -33,5 +33,5 @@ jobs:
         script_stop: true
         script: |
           /home/user/bot/zahraton/venv/bin/pip install -r /home/user/bot/zahraton/requirements.txt
-          pm2 restart zahraton_bot
+          pm2 restart zahratonbot
           sh /home/devops/deploy.sh "${{ github.event.head_commit.message }}" "Zahraton bot updates"
