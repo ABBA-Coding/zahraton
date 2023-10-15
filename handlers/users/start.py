@@ -1,4 +1,7 @@
-import logging
+import re
+import random
+
+import phonenumbers
 
 from aiogram import types
 from aiogram.dispatcher import FSMContext
@@ -8,10 +11,6 @@ from loader import dp, bot
 from keyboards.inline.menu_button import *
 from keyboards.inline.main_inline import *
 from utils.db_api.database import *
-
-import re
-import aiohttp
-import random
 
 date_pattern = re.compile(r"\d{4}-\d{2}-\d{2}")
 
@@ -98,20 +97,20 @@ async def get_name(message: types.Message, state: FSMContext):
 @dp.message_handler(state='get_phone', content_types=types.ContentTypes.CONTACT)
 async def get_phone(message: types.Message, state: FSMContext):
     phone_number = message.contact.phone_number
-    keyboard = await oferta_confirm()
-    await state.update_data(phone=phone_number[1:])
-    await message.answer('Biz sizni malumotlaringizni qayta ishlashga ruhsat bering', reply_markup=keyboard)
-    await state.set_state('confir_oferta')
+    parsed_number = phonenumbers.parse(phone_number, None)
+    is_valid = phonenumbers.is_valid_number(parsed_number)
+    if is_valid:
+        await state.update_data(phone=phone_number.replace("+", ""))
+        await message.answer('Biz sizni malumotlaringizni qayta ishlashga ruhsat bering',
+                             reply_markup=oferta_confirm())
+        await state.set_state('confir_oferta')
+    else:
+        await message.answer("Telefon raqam noto'g'ri ko'rsatilgan")
 
 
 @dp.message_handler(state='get_phone', content_types=types.ContentTypes.TEXT)
-async def get_phone(message: types.Message, state: FSMContext):
-    phone_number = message.text
-    await state.update_data(phone=phone_number)
-    keyboard = await oferta_confirm()
-    await state.update_data(phone=phone_number)
-    await message.answer('Biz sizni malumotlaringizni qayta ishlashga ruhsat bering', reply_markup=keyboard)
-    await state.set_state('confir_oferta')
+async def get_phone_text_validation(message: types.Message, state: FSMContext):
+    await message.answer("Iltimos quyidagi tugmani bosib bizga telefon raqamingizni jo'nating 👇")
 
 
 @dp.callback_query_handler(state='confir_oferta')

@@ -23,7 +23,7 @@ async def sale_confirm(sale_id):
     return markup
 
 
-async def oferta_confirm():
+def oferta_confirm():
     markup = InlineKeyboardMarkup(
         inline_keyboard=[
             [InlineKeyboardButton(text=f"Sodiqlik dasturi qoidalari",
