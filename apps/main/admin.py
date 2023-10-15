@@ -1,8 +1,11 @@
+from django import forms
 from django.contrib import admin
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.urls import reverse
 from django.utils.safestring import mark_safe
+from django.contrib import admin
+from .forms import CustomCKEditorWidget
 
 from apps.home.tasks import send_notifications_task
 
@@ -24,10 +27,35 @@ class NotificationShotsInline(admin.TabularInline):
     model = NotificationShots
 
 
+class NewsModelAdminForm(forms.ModelForm):
+    description = forms.CharField(widget=CustomCKEditorWidget())
+
+    class Meta:
+        model = News
+        fields = '__all__'
+
+
+class SaleModelAdminForm(forms.ModelForm):
+    description = forms.CharField(widget=CustomCKEditorWidget())
+
+    class Meta:
+        model = Sale
+        fields = '__all__'
+
+
+class NotificationModelAdminForm(forms.ModelForm):
+    description = forms.CharField(widget=CustomCKEditorWidget())
+
+    class Meta:
+        model = Notification
+        fields = '__all__'
+
+
 @admin.register(Notification)
 class NotificationAdmin(admin.ModelAdmin):
     list_display = ["short_description", "display_image", "status", "all_chats_count"]
     inlines = [NotificationShotsInline]
+    form = NotificationModelAdminForm
 
     def short_description(self, obj):
         return obj.description[:100] + "..." if len(obj.description) > 100 else obj.description
@@ -74,6 +102,7 @@ post_save.connect(run_celery_task_on_create, sender=Notification)
 class NewsAdmin(admin.ModelAdmin):
     list_display = ["name", "short_description", "active", "tools_column"]
     inlines = [NewsShotsInline]
+    form = NewsModelAdminForm
 
     def short_description(self, obj):
         return obj.description[:100] + "..." if len(obj.description) > 100 else obj.description
@@ -96,6 +125,7 @@ class NewsAdmin(admin.ModelAdmin):
 class SaleAdmin(admin.ModelAdmin):
     list_display = ["name", "short_description", "active", "tools_column"]
     inlines = [SaleShotsInline]
+    form = SaleModelAdminForm
 
     def short_description(self, obj):
         return obj.description[:100] + "..." if len(obj.description) > 100 else obj.description

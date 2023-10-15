@@ -1,6 +1,21 @@
 from django import forms
 from .models import *
 
+from django import forms
+from ckeditor.widgets import CKEditorWidget
+
+
+class CustomCKEditorWidget(CKEditorWidget):
+    def use_required_attribute(self, initial):
+        return False
+
+    def value_from_datadict(self, data, files, name):
+        value = data.get(name, None)
+        if not value:
+            return None
+        value = value.replace("<p>", "").replace("</p>", "").replace("&#39;", "’").replace("&rsquo;", "’").replace("&nbsp;", "").replace("<br />", "")  # noqa
+        return value
+
 
 class SaleForm(forms.ModelForm):
     name = forms.CharField(
@@ -17,7 +32,7 @@ class SaleForm(forms.ModelForm):
             }
         ))
     image = forms.ImageField(
-      widget=forms.FileInput()
+        widget=forms.FileInput()
     )
 
     class Meta:
@@ -40,23 +55,23 @@ class NewsForm(forms.ModelForm):
             }
         ))
     image = forms.ImageField(
-      widget=forms.FileInput()
+        widget=forms.FileInput()
     )
 
     image2 = forms.ImageField(
-      widget=forms.FileInput()
+        widget=forms.FileInput()
     )
 
     image3 = forms.ImageField(
-      widget=forms.FileInput()
+        widget=forms.FileInput()
     )
 
     image4 = forms.ImageField(
-      widget=forms.FileInput()
+        widget=forms.FileInput()
     )
 
     image5 = forms.ImageField(
-      widget=forms.FileInput()
+        widget=forms.FileInput()
     )
 
     min_age = forms.IntegerField(
@@ -96,7 +111,7 @@ class NotificationForm(forms.ModelForm):
             }
         ))
     image = forms.ImageField(
-      widget=forms.FileInput()
+        widget=forms.FileInput()
     )
     image2 = forms.ImageField(
         widget=forms.FileInput(),
@@ -121,4 +136,3 @@ class NotificationForm(forms.ModelForm):
     class Meta:
         model = Notification
         fields = "__all__"
-
