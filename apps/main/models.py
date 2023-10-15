@@ -1,8 +1,7 @@
 from django.db import models
 from apps.authentication.models import MegaUser as User
 from apps.home.models import BaseModel
-from datetime import datetime, timedelta
-from apps.telegram_bot.models import TelegramUser
+from ckeditor.fields import RichTextField
 from urllib.parse import unquote
 
 MONTH, SEASON, YEAR = (
@@ -20,7 +19,7 @@ ERKAK, AYOL, ALL = (
 
 class Sale(BaseModel):
     name = models.CharField(verbose_name="Nomi", max_length=70, null=True, blank=True)
-    description = models.TextField(verbose_name="Izoh", max_length=950)
+    description = RichTextField(verbose_name="Izoh", max_length=950)
 
     active = models.BooleanField(default=True)
 
@@ -61,7 +60,7 @@ class News(BaseModel):
     )
 
     name = models.CharField(max_length=100, null=True, blank=True)
-    description = models.CharField(max_length=940, null=True, blank=True)
+    description = RichTextField(max_length=940, null=True, blank=True)
     min_age = models.IntegerField(verbose_name="Qaysi yoshdan", default=0)
     max_age = models.IntegerField(verbose_name="Qaysi yoshgacha", default=100)
     for_gender = models.CharField(verbose_name="Kimlar uchun", max_length=200, choices=GENDER, null=True)
@@ -92,7 +91,7 @@ class Notification(models.Model):
         CREATED = 0, "Yaratildi"
         SENDED = 1, "Bitirildi"
 
-    description = models.CharField(max_length=1023, null=True, blank=True)
+    description = RichTextField(max_length=1023, null=True, blank=True)
     status = models.IntegerField(choices=NotificationStatus.choices, default=NotificationStatus.CREATED, editable=False)
     all_chats = models.IntegerField(default=0, editable=False)
 

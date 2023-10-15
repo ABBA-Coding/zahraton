@@ -18,7 +18,8 @@ sys.path.append(os.path.join(BASE_DIR, "myapp"))
 SECRET_KEY = 'django-insecure-_qo-xrslgusc1ixtvh477nbnpso7r(((xrs03&t0kewg6fx52d'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv("DJANGO_DEBUG", default=False)
+# DEBUG = os.getenv("DJANGO_DEBUG", default=False)
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
@@ -38,6 +39,7 @@ INSTALLED_APPS = [
     'knox',
     'drf_yasg',
     'django_celery_beat',
+    "ckeditor",
 ]
 
 MIDDLEWARE = [
@@ -370,3 +372,13 @@ if DEBUG is False:
         environment="production",
         traces_sample_rate=0.0,
     )
+CKEDITOR_CONFIGS = {
+    'default': {
+        'toolbar': 'Custom',
+        'toolbar_Custom': [
+            ['Bold', 'Italic', 'Underline'],
+            ['Link', 'Unlink'],
+            ['RemoveFormat', 'Source']
+        ]
+    }
+}
