@@ -97,7 +97,7 @@ async def get_name(message: types.Message, state: FSMContext):
 @dp.message_handler(state='get_phone', content_types=types.ContentTypes.CONTACT)
 async def get_phone(message: types.Message, state: FSMContext):
     phone_number = message.contact.phone_number
-    parsed_number = phonenumbers.parse(phone_number, None)
+    parsed_number = phonenumbers.parse("+" + phone_number, None)
     is_valid = phonenumbers.is_valid_number(parsed_number)
     if is_valid:
         await state.update_data(phone=phone_number.replace("+", ""))
