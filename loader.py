@@ -9,8 +9,8 @@ from aiogram.dispatcher.middlewares import LifetimeControllerMiddleware
 from utils.db_api.database import Database
 
 bot = Bot(token=config.BOT_TOKEN, parse_mode=types.ParseMode.HTML)
-storage = MemoryStorage()
-# storage = RedisStorage2(port=6379, db=10)
+# storage = MemoryStorage()
+storage = RedisStorage2(port=6379, db=10)
 dp = Dispatcher(bot, storage=storage)
 db = Database()
 DEBUG = False
