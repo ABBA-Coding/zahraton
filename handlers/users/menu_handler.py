@@ -2,6 +2,8 @@ from datetime import datetime
 
 from aiogram import types
 from aiogram.dispatcher import FSMContext
+
+from handlers.users.start import register_start_message
 from loader import dp, bot
 from keyboards.inline.menu_button import *
 from keyboards.inline.main_inline import *
@@ -73,16 +75,18 @@ async def get_news_by_index(m: types.Message, index: int, db: Database, debug: b
 @dp.message_handler(state='user_menu')
 async def menu(message: types.Message, state: FSMContext, debug: bool, db: Database):
     await state.update_data(action='menu')
-
     if message.text == "💰 Mening hisobim (bonuslarim)":
         user = await db.get_user(user_id=message.from_user.id)
-        keyboard = menu_keyboard()
-        cashbacks = await db.get_user_balance(user['phone'])
-        formatted_total = "{:,.3f}".format(float(cashbacks['balance']) / 1000).replace(",", ".") if cashbacks[
-                                                                                                        'balance'] >= 1000 else int(
-            cashbacks['balance'])
-        text = f"\n\n💵 Hozirgi keshbek: <b>{formatted_total}</b> UZS"
-        await message.answer(text, reply_markup=keyboard)
+        if user and user['status'] is True:
+            keyboard = menu_keyboard()
+            cashbacks = await db.get_user_balance(user['phone'])
+            formatted_total = "{:,.3f}".format(float(cashbacks['balance']) / 1000).replace(",", ".") if cashbacks[
+                                                                                                            'balance'] >= 1000 else int(
+                cashbacks['balance'])
+            text = f"\n\n💵 Hozirgi keshbek: <b>{formatted_total}</b> UZS"
+            await message.answer(text, reply_markup=keyboard)
+        else:
+            await register_start_message(message, state)
     if message.text == "🎁 Aksiyalar":
         await state.update_data(sale_id=0)
         await message.answer("Hozirda aktiv bo'lgan aksiyalar 👇", reply_markup=move_reply_keyboard())
@@ -105,27 +109,33 @@ async def menu(message: types.Message, state: FSMContext, debug: bool, db: Datab
         await state.set_state("get_comment")
     if message.text == '🔄 QR kod':
         user = await db.get_user(user_id=message.from_user.id)
-        balance = await db.get_user_balance(user['phone'])
-        user_uuid = await db.get_api_uuid(user['phone'])
-        q = qrcode.make(f'{user_uuid}')
-        q.save('qrcode.png')
-        keyboard = menu_keyboard()
-        photo = open('qrcode.png', 'rb')
-        formatted_total = ("{:,.3f}".format(float(balance['balance']) / 1000).replace(",", ".") if
-                           balance['balance'] >= 1000 else int(balance['balance']))
+        if user and user['status'] is True:
+            balance = await db.get_user_balance(user['phone'])
+            user_uuid = await db.get_api_uuid(user['phone'])
+            q = qrcode.make(f'{user_uuid}')
+            q.save('qrcode.png')
+            keyboard = menu_keyboard()
+            photo = open('qrcode.png', 'rb')
+            formatted_total = ("{:,.3f}".format(float(balance['balance']) / 1000).replace(",", ".") if
+                               balance['balance'] >= 1000 else int(balance['balance']))
 
-        await message.answer_photo(photo=photo, caption=f"Sizning keshbekingizni ishlatish uchun QR kodingiz "
-                                                        f"👆\n\n💵 Hozirgi keshbekingiz: <b>{formatted_total}</b> UZS",
-                                   reply_markup=keyboard)
+            await message.answer_photo(photo=photo, caption=f"Sizning keshbekingizni ishlatish uchun QR kodingiz "
+                                                            f"👆\n\n💵 Hozirgi keshbekingiz: <b>{formatted_total}</b> UZS",
+                                       reply_markup=keyboard)
+        else:
+            await register_start_message(message, state)
     if message.text == "💳 To'lovlar tarixi":
         await message.answer(text='⏳', reply_markup=ReplyKeyboardRemove())
         user = await db.get_user(message.from_user.id)
-        orders = await db.get_user_orders(user['phone'])
-        years = db.get_order_years(orders)
-        await bot.delete_message(chat_id=message.from_user.id, message_id=message.message_id + 1)
-        markup = year_keyboard(years)
-        await message.answer(text='Kerakli yilni tanlang 👇', reply_markup=markup)
-        await state.set_state('get_year_')
+        if user and user['status'] is True:
+            orders = await db.get_user_orders(user['phone'])
+            years = db.get_order_years(orders)
+            await bot.delete_message(chat_id=message.from_user.id, message_id=message.message_id + 1)
+            markup = year_keyboard(years)
+            await message.answer(text='Kerakli yilni tanlang 👇', reply_markup=markup)
+            await state.set_state('get_year_')
+        else:
+            await register_start_message(message, state)
 
 
 @dp.message_handler(state="get_comment", content_types=types.ContentType.ANY)

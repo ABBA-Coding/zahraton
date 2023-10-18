@@ -24,6 +24,12 @@ async def isValid(s):
     return Pattern.match(s)
 
 
+async def register_start_message(message: types.Message, state: FSMContext):
+    await message.answer("👋 Assalomu alaykum\nZahratun botiga xush kelibsiz. Iltimos ism, sharifingizni kiriting",
+                         reply_markup=ReplyKeyboardRemove())
+    await state.set_state("get_name")
+
+
 @dp.message_handler(commands=['start'], state='*')
 async def start_func(message: types.Message, state: FSMContext, db: Database):
     await db.add_chat(message.from_user.id)
@@ -36,9 +42,7 @@ async def start_func(message: types.Message, state: FSMContext, db: Database):
                              reply_markup=keyboard)
         await state.set_state("user_menu")
     else:
-        await message.answer("👋 Assalomu alaykum\nZahratun botiga xush kelibsiz. Iltimos ism, sharifingizni kiriting",
-                             reply_markup=ReplyKeyboardRemove())
-        await state.set_state("get_name")
+        await register_start_message(message, state)
 
 
 @dp.message_handler(state='get_name')

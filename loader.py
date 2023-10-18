@@ -1,4 +1,6 @@
 from aiogram import Bot, Dispatcher, types
+from aiogram.contrib.fsm_storage.memory import MemoryStorage
+
 from data import config
 from aiogram.contrib.fsm_storage.redis import RedisStorage2
 
@@ -7,10 +9,11 @@ from aiogram.dispatcher.middlewares import LifetimeControllerMiddleware
 from utils.db_api.database import Database
 
 bot = Bot(token=config.BOT_TOKEN, parse_mode=types.ParseMode.HTML)
-storage = RedisStorage2(port=6379, db=10)
+storage = MemoryStorage()
+# storage = RedisStorage2(port=6379, db=10)
 dp = Dispatcher(bot, storage=storage)
 db = Database()
-DEBUG = False
+DEBUG = True
 
 
 class EnvironmentMiddleware(LifetimeControllerMiddleware):
