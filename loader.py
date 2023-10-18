@@ -13,7 +13,7 @@ storage = MemoryStorage()
 # storage = RedisStorage2(port=6379, db=10)
 dp = Dispatcher(bot, storage=storage)
 db = Database()
-DEBUG = True
+DEBUG = False
 
 
 class EnvironmentMiddleware(LifetimeControllerMiddleware):
