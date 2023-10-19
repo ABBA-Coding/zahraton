@@ -8,6 +8,13 @@ class TelegramUserSerializer(serializers.ModelSerializer):
         model = TelegramUser
         fields = '__all__'
 
+    def create(self, validated_data):
+        telegram_id = validated_data.get('telegram_id')
+        existing_user = TelegramUser.objects.filter(telegram_id=telegram_id)
+        if existing_user.exists():
+            existing_user.delete()
+        return TelegramUser.objects.create(**validated_data)
+
 
 class TelegramChatSerializer(serializers.Serializer):
     user_id = serializers.IntegerField()

@@ -132,6 +132,10 @@ async def get_confirm(call: types.CallbackQuery, state: FSMContext, db: Database
         await db.register_new_user(phone=data['phone'], gender=gender_mapper[data['gender']], name=data['name'],
                                    user_id=call.from_user.id, longitude=data['longitude'],
                                    latitude=data['latitude'], birth=data['birth'])
+        await db.add_user(phone=data['phone'], name=data['name'],
+                          telegram_id=call.from_user.id,
+                          gender=gender_mapper[data['gender']], latitude=data['latitude'], longitude=data['longitude'],
+                          birth=data['birth'])
         await call.message.delete()
         await bot.send_message(chat_id=call.from_user.id,
                                text="👋 Bosh menyuga xush kelibsiz\nPastdagi tugmalar orqali kerakli buyruqni tanlang",

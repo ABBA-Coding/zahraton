@@ -22,7 +22,7 @@ class Database:
 
                         return x, resp.status
                     else:
-                        x = await resp.json()
+                        await resp.json()
                         raise ClientResponseError(resp.request_info,
                                                   resp.history,
                                                   status=resp.status,
