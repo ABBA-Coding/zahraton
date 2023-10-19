@@ -8,6 +8,7 @@ from celery import shared_task
 from apps.main.models import Notification, NotificationShots
 from apps.telegram_bot.models import TelegramChat
 
+
 api_token = str(os.getenv("BOT_TOKEN"))
 base_url = f'https://api.telegram.org/bot{api_token}'
 SEND_MEDIA_GROUP = f"https://api.telegram.org/bot{api_token}/sendMediaGroup"
@@ -21,6 +22,8 @@ def send_media_group(text, chat_id, media):
             files[f'photo{i}'] = img.read()
             media_list.append({'type': 'photo', 'media': f'attach://photo{i}'})
     media_list[0]['caption'] = text
+    media_list[0]['parse_mode'] = 'HTML'
+
     payload = {'chat_id': chat_id, 'media': json.dumps(media_list)}
     resp = requests.post(SEND_MEDIA_GROUP, data=payload, files=files)
     return resp.status_code
@@ -28,7 +31,7 @@ def send_media_group(text, chat_id, media):
 
 def send_notifications_text(text, chat_id, media=None):
     url = f'https://api.telegram.org/bot{api_token}/sendMessage'
-    data = {'chat_id': chat_id, 'text': text}
+    data = {'chat_id': chat_id, 'text': text, 'parse_mode': 'HTML'}
     response = requests.post(url, data=data)
     return response.status_code
 

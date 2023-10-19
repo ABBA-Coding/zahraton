@@ -8,7 +8,7 @@ from .serializers import *
 from rest_framework.response import Response
 from django.db.models import Q, Case, When, F, IntegerField
 
-from ..home.tasks import send_notifications_task
+from .tasks import send_notifications_task
 
 
 class GetUserView(generics.ListAPIView):

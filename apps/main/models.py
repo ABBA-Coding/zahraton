@@ -1,6 +1,7 @@
+import uuid
+
 from django.db import models
 from apps.authentication.models import MegaUser as User
-from apps.home.models import BaseModel
 from ckeditor.fields import RichTextField
 from urllib.parse import unquote
 
@@ -17,9 +18,19 @@ ERKAK, AYOL, ALL = (
 )
 
 
+class BaseModel(models.Model):
+    guid = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+    created_date = models.DateTimeField(auto_now_add=True, null=True)
+    edited_date = models.DateTimeField(auto_now=False, null=True, blank=True, editable=False)
+
+    class Meta:
+        abstract = True
+
+
 class Sale(BaseModel):
     name = models.CharField(verbose_name="Nomi", max_length=70, null=True, blank=True)
     description = RichTextField(verbose_name="Izoh", max_length=950)
+    created_at = models.DateTimeField("Yaratilgan vaqti", auto_now_add=True)
 
     active = models.BooleanField(default=True)
 
@@ -64,6 +75,7 @@ class News(BaseModel):
     min_age = models.IntegerField(verbose_name="Qaysi yoshdan", default=0)
     max_age = models.IntegerField(verbose_name="Qaysi yoshgacha", default=100)
     for_gender = models.CharField(verbose_name="Kimlar uchun", max_length=200, choices=GENDER, null=True)
+    created_at = models.DateTimeField("Yaratilgan vaqti", auto_now_add=True)
 
     active = models.BooleanField(default=True)
 
@@ -95,6 +107,7 @@ class Notification(models.Model):
     description = RichTextField(max_length=1023, null=True, blank=True)
     status = models.IntegerField(choices=NotificationStatus.choices, default=NotificationStatus.CREATED, editable=False)
     all_chats = models.IntegerField(default=0, editable=False)
+    created_at = models.DateTimeField("Yaratilgan vaqti", auto_now_add=True)
 
     class Meta:
         verbose_name = "Bildirishnoma "

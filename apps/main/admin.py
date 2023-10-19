@@ -7,7 +7,7 @@ from django.utils.safestring import mark_safe
 from django.contrib import admin
 from .forms import CustomCKEditorWidget
 
-from apps.home.tasks import send_notifications_task
+from .tasks import send_notifications_task
 
 from .models import *
 
@@ -53,7 +53,7 @@ class NotificationModelAdminForm(forms.ModelForm):
 
 @admin.register(Notification)
 class NotificationAdmin(admin.ModelAdmin):
-    list_display = ["short_description", "display_image", "all_chats_count", "tools_column"]
+    list_display = ["short_description", "display_image", "all_chats_count", "created_at", "tools_column"]
     inlines = [NotificationShotsInline]
 
     form = NotificationModelAdminForm
@@ -66,8 +66,8 @@ class NotificationAdmin(admin.ModelAdmin):
             html_tag = 'Yuborildi'
         return mark_safe(
             html_tag.format(
-                reverse('send_notification', args=[obj.pk]),)
-            )
+                reverse('send_notification', args=[obj.pk]), )
+        )
 
     tools_column.short_description = 'Boshqaruv'
     tools_column.allow_tags = True
@@ -84,11 +84,11 @@ class NotificationAdmin(admin.ModelAdmin):
 
     def display_image(self, obj):
         images = obj.notificationshots_set
-
-        return mark_safe(
-            '<img src="{}" width="50" height="50" />'.format(
-                images.first().image.url if images.exists() else 'static/img/icons/icon-48x48.png'
-            ))
+        image = None
+        if images.exists():
+            image = images.first()
+        img_html = f'<img src="{image.image.url}" width="50" height="50" />' if image else '<div>Rasmsiz</div>'
+        return mark_safe(img_html)
 
     display_image.short_description = "Rasmi"
 
@@ -104,7 +104,7 @@ class NotificationAdmin(admin.ModelAdmin):
 
 @admin.register(News)
 class NewsAdmin(admin.ModelAdmin):
-    list_display = ["name", "short_description", "active", "tools_column"]
+    list_display = ["name", "short_description", "active", "created_at", "tools_column"]
     inlines = [NewsShotsInline]
     form = NewsModelAdminForm
 
@@ -127,7 +127,7 @@ class NewsAdmin(admin.ModelAdmin):
 
 @admin.register(Sale)
 class SaleAdmin(admin.ModelAdmin):
-    list_display = ["name", "short_description", "active", "tools_column"]
+    list_display = ["name", "short_description", "active", "created_at", "tools_column"]
     inlines = [SaleShotsInline]
     form = SaleModelAdminForm
 
@@ -146,8 +146,3 @@ class SaleAdmin(admin.ModelAdmin):
 
     tools_column.short_description = 'Boshqaruv'
     tools_column.allow_tags = True
-
-
-@admin.register(NotificationShots)
-class NotificationShotsAdmin(admin.ModelAdmin):
-    ...
