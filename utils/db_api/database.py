@@ -103,7 +103,7 @@ class Database:
     async def get_user_balance(self, phone, local_user):
         user_uuid = await self.get_api_uuid(phone)
         async with ClientSession() as session:
-            if user_uuid.isdigit():
+            if user_uuid and user_uuid.isdigit():
                 payload = {
                     "key": "e67ab364-bc13-11ec-8a51-0242ac12000d",
                     "clientCode": int(user_uuid)
