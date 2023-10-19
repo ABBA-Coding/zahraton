@@ -28,6 +28,10 @@ class GetUserView(generics.ListAPIView):
                 'moneyback_id': t_user.moneyback_id,
                 'phone': t_user.phone,
                 'full_name': t_user.full_name,
+                'gender': t_user.gender,
+                'longitude': t_user.longitude,
+                'latitude': t_user.latitude,
+                'birth': t_user.birth
             }
         return Response(data)
 

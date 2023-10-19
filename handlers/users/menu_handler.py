@@ -78,13 +78,21 @@ async def menu(message: types.Message, state: FSMContext, debug: bool, db: Datab
     if message.text == "💰 Mening hisobim (bonuslarim)":
         user = await db.get_user(user_id=message.from_user.id)
         if user and user['status'] is True:
-            keyboard = menu_keyboard()
-            cashbacks = await db.get_user_balance(user['phone'])
-            formatted_total = "{:,.3f}".format(float(cashbacks['balance']) / 1000).replace(",", ".") if cashbacks[
-                                                                                                            'balance'] >= 1000 else int(
-                cashbacks['balance'])
-            text = f"\n\n💵 Hozirgi keshbek: <b>{formatted_total}</b> UZS"
-            await message.answer(text, reply_markup=keyboard)
+            cashbacks, user_uuid = await db.get_user_balance(user['phone'], user)
+            if cashbacks:
+                formatted_total = "{:,.3f}".format(float(cashbacks['balance']) / 1000).replace(",", ".") if cashbacks[
+                                                                                                                'balance'] >= 1000 else int(
+                    cashbacks['balance'])
+                text = f"\n\n💵 Hozirgi keshbek: <b>{formatted_total}</b> UZS"
+                await message.answer(text, reply_markup=menu_keyboard())
+            else:
+                if debug is False:
+                    import sentry_sdk
+                    sentry_sdk.capture_message("Снимок и состояние данных cashbacks",
+                                               extra={'cashbacks': cashbacks,
+                                                      'user_uuid': user_uuid,
+                                                      'local_user': user})
+                await message.answer(MONEYBACK_USE_TXT, reply_markup=menu_keyboard())
         else:
             await register_start_message(message, state)
     if message.text == "🎁 Aksiyalar":
@@ -110,18 +118,25 @@ async def menu(message: types.Message, state: FSMContext, debug: bool, db: Datab
     if message.text == '🔄 QR kod':
         user = await db.get_user(user_id=message.from_user.id)
         if user and user['status'] is True:
-            balance = await db.get_user_balance(user['phone'])
-            user_uuid = await db.get_api_uuid(user['phone'])
-            q = qrcode.make(f'{user_uuid}')
-            q.save('qrcode.png')
-            keyboard = menu_keyboard()
-            photo = open('qrcode.png', 'rb')
-            formatted_total = ("{:,.3f}".format(float(balance['balance']) / 1000).replace(",", ".") if
-                               balance['balance'] >= 1000 else int(balance['balance']))
+            balance, user_uuid = await db.get_user_balance(user['phone'], user)
+            if user_uuid:
+                q = qrcode.make(f'{user_uuid}')
+                q.save('qrcode.png')
+                photo = open('qrcode.png', 'rb')
+                formatted_total = ("{:,.3f}".format(float(balance['balance']) / 1000).replace(",", ".") if
+                                   balance['balance'] >= 1000 else int(balance['balance']))
 
-            await message.answer_photo(photo=photo, caption=f"Sizning keshbekingizni ishlatish uchun QR kodingiz "
-                                                            f"👆\n\n💵 Hozirgi keshbekingiz: <b>{formatted_total}</b> UZS",
-                                       reply_markup=keyboard)
+                await message.answer_photo(photo=photo, caption=f"Sizning keshbekingizni ishlatish uchun QR kodingiz "
+                                                                f"👆\n\n💵 Hozirgi keshbekingiz: <b>{formatted_total}</b> UZS",
+                                           reply_markup=menu_keyboard())
+            else:
+                if debug is False:
+                    import sentry_sdk
+                    sentry_sdk.capture_message("Снимок и состояние данных balance",
+                                               extra={'balance': balance,
+                                                      'user_uuid': user_uuid,
+                                                      'local_user': user})
+                await message.answer(text=MONEYBACK_USE_TXT, reply_markup=menu_keyboard())
         else:
             await register_start_message(message, state)
     if message.text == "💳 To'lovlar tarixi":
@@ -358,6 +373,7 @@ async def news_handler(m: types.Message, state: FSMContext, debug: bool, db: Dat
 
 @dp.callback_query_handler(state="get_year_")
 async def get_year(call: types.CallbackQuery, state: FSMContext, db: Database):
+    await call.answer()
     data = call.data
     if data != 'back_menu':
         user = await db.get_user(call.from_user.id)
@@ -377,6 +393,7 @@ async def get_year(call: types.CallbackQuery, state: FSMContext, db: Database):
 @dp.callback_query_handler(state="get_month_")
 async def get_year(call: types.CallbackQuery, state: FSMContext, db: Database):
     data = call.data
+    await call.answer()
     state_data = await state.get_data()
     if data != 'back_menu':
         await call.message.delete()

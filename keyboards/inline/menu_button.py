@@ -1,5 +1,11 @@
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
+MONEYBACK_USE_TXT = "Moneybek dasturidan foydalanishingizni tavsiya beramiz"
+gender_mapper = {
+    " Erkak": "👨‍💼 Erkaklar uchun",
+    " Ayol": "👩‍💼 Ayollar uchun"
+}
+
 
 def phone_keyboard():
     keyboard = ReplyKeyboardMarkup()

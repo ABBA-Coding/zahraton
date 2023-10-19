@@ -120,13 +120,10 @@ async def get_phone_text_validation(message: types.Message, state: FSMContext):
 @dp.callback_query_handler(state='confir_oferta')
 async def get_confirm(call: types.CallbackQuery, state: FSMContext, db: Database):
     call_data = call.data
+    await call.answer()
     if call_data == 'confirm':
         data = await state.get_data()
         keyboard = menu_keyboard()
-        gender_mapper = {
-            " Erkak": "👨‍💼 Erkaklar uchun",
-            " Ayol": "👩‍💼 Ayollar uchun"
-        }
         await db.register_new_user(phone=data['phone'], gender=gender_mapper[data['gender']], name=data['name'],
                                    user_id=call.from_user.id, longitude=data['longitude'],
                                    latitude=data['latitude'], birth=data['birth'])

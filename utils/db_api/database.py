@@ -1,3 +1,5 @@
+import asyncio
+
 from aiohttp import ClientSession, ClientResponseError, ClientError
 
 
@@ -68,7 +70,7 @@ class Database:
             "phone": phone,
             "firstName": name,
             "lastName": "NN",
-            "gender": "1" if '👩‍💼 Ayollar uchun' in gender else "0",
+            "gender": "1" if gender == '👩‍💼 Ayollar uchun' else "0",
             "birthDate": birth
         }
         async with ClientSession() as session:
@@ -98,16 +100,29 @@ class Database:
                 if resp.status == 200 and 'userUUID' in x:
                     return x["userUUID"]
 
-    async def get_user_balance(self, phone):
+    async def get_user_balance(self, phone, local_user):
         user_uuid = await self.get_api_uuid(phone)
         async with ClientSession() as session:
-            payload = {
-                "key": "e67ab364-bc13-11ec-8a51-0242ac12000d",
-                "clientCode": int(user_uuid)
-            }
-            async with session.request("POST", self.cashbek_url + "/get-user-balance", json=payload) as resp:
-                x = await resp.json()
-                return x
+            if user_uuid.isdigit():
+                payload = {
+                    "key": "e67ab364-bc13-11ec-8a51-0242ac12000d",
+                    "clientCode": int(user_uuid)
+                }
+                async with session.request("POST", self.cashbek_url + "/get-user-balance", json=payload) as resp:
+                    user = await resp.json()
+                    return user, int(user_uuid)
+            else:
+                await self.register_new_user(
+                    gender="1" if local_user['gender'] == '👩‍💼 Ayollar uchun' else "0",
+                    phone=local_user['phone'],
+                    name=local_user['full_name'],
+                    user_id=local_user['telegram_id'],
+                    longitude=local_user['longitude'],
+                    latitude=local_user['latitude'],
+                    birth=local_user['birth']
+                )
+                await asyncio.sleep(1)
+                return await self.get_user_balance(phone, local_user)
 
     async def get_user_orders(self, phone, page=None):
         keys = ['e67ab364-bc13-11ec-8a51-0242ac12000d', 'e67ab364-bc13-11ec-8a51-0242ac12000d',
