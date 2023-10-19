@@ -78,6 +78,9 @@ async def menu(message: types.Message, state: FSMContext, debug: bool, db: Datab
     if message.text == "💰 Mening hisobim (bonuslarim)":
         user = await db.get_user(user_id=message.from_user.id)
         if user and user['status'] is True:
+            text = (f"Hurmatli, <b>{user['full_name']}</b>, +{user['phone']}, "
+                    f"Sizning keshbek bo'yicha ma'lumotlaringiz quyida ko'rsatilgan\n")
+            await message.answer(text)
             cashbacks, user_uuid = await db.get_user_balance(user['phone'], user)
             if cashbacks:
                 formatted_total = "{:,.3f}".format(float(cashbacks['balance']) / 1000).replace(",", ".") if cashbacks[
