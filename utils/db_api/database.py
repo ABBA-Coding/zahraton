@@ -4,7 +4,7 @@ from aiohttp import ClientSession, ClientResponseError, ClientError
 
 
 class Database:
-    base_url = "https://zahraton.itlink.uz/api"
+    base_url = "https://botloyalty.zahratun.uz/api"
     # base_url = "http://localhost:8000/api"
     cashbek_url = "https://cabinet.cashbek.uz/services/gocashapi/api"
 
