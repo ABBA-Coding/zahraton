@@ -20,7 +20,10 @@ class TelegramUser(models.Model):
     @property
     def age(self):
         current_date = datetime.now()
-        birth_date = datetime.strptime(self.birth, '%Y-%m-%d')
+        try:
+            birth_date = datetime.strptime(self.birth, '%Y-%m-%d')
+        except ValueError:
+            birth_date = datetime.strptime(self.birth, '%Y-%d-%m')
         age = current_date.year - birth_date.year
 
         if current_date.month < birth_date.month or (
