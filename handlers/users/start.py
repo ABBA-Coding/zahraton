@@ -1,5 +1,5 @@
-import re
 import random
+from datetime import datetime
 
 import phonenumbers
 
@@ -12,7 +12,13 @@ from keyboards.inline.menu_button import *
 from keyboards.inline.main_inline import *
 from utils.db_api.database import *
 
-date_pattern = re.compile(r"\d{4}-\d{2}-\d{2}")
+
+def check_date_format(date_string):
+    try:
+        datetime.strptime(date_string, '%Y-%m-%d')
+        return True
+    except ValueError:
+        return False
 
 
 async def generateOTP():
@@ -72,7 +78,7 @@ async def get_name(message: types.Message, state: FSMContext):
 
 @dp.message_handler(state='get_birth')
 async def get_name(message: types.Message, state: FSMContext):
-    if date_pattern.match(message.text) is not None:
+    if check_date_format(message.text) is True:
         await state.update_data(birth=message.text)
         # keyboard = await location_send()
         # await message.answer('Iltimos manzilingizni ulashing 👇', reply_markup=keyboard)
