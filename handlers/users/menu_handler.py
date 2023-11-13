@@ -7,6 +7,7 @@ from handlers.users.start import register_start_message
 from loader import dp, bot
 from keyboards.inline.menu_button import *
 from keyboards.inline.main_inline import *
+from utils.checker import process_subscription
 from utils.db_api.database import *
 import qrcode
 from aiogram.types import ReplyKeyboardRemove
@@ -76,6 +77,8 @@ async def get_news_by_index(m: types.Message, index: int, db: Database, debug: b
 async def menu(message: types.Message, state: FSMContext, debug: bool, db: Database):
     await state.update_data(action='menu')
     if message.text == "💰 Mening hisobim (bonuslarim)":
+        if await process_subscription(message) is False:
+            return
         user = await db.get_user(user_id=message.from_user.id)
         if user and user['status'] is True:
             text = (f"Hurmatli, <b>{user['full_name']}</b>, +{user['phone']}, "
@@ -119,6 +122,8 @@ async def menu(message: types.Message, state: FSMContext, debug: bool, db: Datab
                              reply_markup=keyboard)
         await state.set_state("get_comment")
     if message.text == '🔄 QR kod':
+        if await process_subscription(message) is False:
+            return
         user = await db.get_user(user_id=message.from_user.id)
         if user and user['status'] is True:
             balance, user_uuid = await db.get_user_balance(user['phone'], user)
@@ -143,6 +148,8 @@ async def menu(message: types.Message, state: FSMContext, debug: bool, db: Datab
         else:
             await register_start_message(message, state)
     if message.text == "💳 To'lovlar tarixi":
+        if await process_subscription(message) is False:
+            return
         await message.answer(text='⏳', reply_markup=ReplyKeyboardRemove())
         user = await db.get_user(message.from_user.id)
         if user and user['status'] is True:
