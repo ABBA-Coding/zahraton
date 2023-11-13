@@ -5,7 +5,7 @@ from aiogram.types import InlineKeyboardButton
 
 SUBSCRIPTION_CHANNELS = [
     {"name": "Zahratun | supermarket 🇺🇿", "link": "@zahratunuz"},
-    {"name": "Zahratun Food ДОСТАВКА 🚚", "link": "@zahratun_food"},
+    {"name": "Zahratun fast-food 🍔", "link": "@zahratun_food"},
 ]
 
 
