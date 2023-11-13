@@ -39,7 +39,7 @@ async def process_subscription(message: types.Message, user_id=None):
                                                 url="https://t.me/" + channel["link"].replace('@', '')))
         channel_kb.add(InlineKeyboardButton("Tasdiqlash", callback_data="approve"))
 
-        await message.answer('Ushbu botdan foydalanishu uchun quyidagi kanallarga a\'zo bolish kerak',
+        await message.answer('Ushbu botdan foydalanish uchun quyidagi kanallarga a\'zo bolishingiz kerak! 😉',
                              reply_markup=channel_kb)
         return False
     return True
