@@ -129,8 +129,13 @@ async def menu(message: types.Message, state: FSMContext, debug: bool, db: Datab
                 q = qrcode.make(f'{user_uuid}')
                 q.save('qrcode.png')
                 photo = open('qrcode.png', 'rb')
-                formatted_total = ("{:,.3f}".format(float(balance['balance']) / 1000).replace(",", ".") if
-                                   balance['balance'] >= 1000 else int(balance['balance']))
+                if balance is not None and balance >= 1000:
+                    formatted_total = "{:,.3f}".format(float(balance['balance']) / 1000).replace(",", ".")
+                elif balance is None:
+                    formatted_total = 0
+                else:
+                    formatted_total = int(balance['balance'])
+
 
                 await message.answer_photo(photo=photo, caption=f"Sizning keshbekingizni ishlatish uchun QR kodingiz "
                                                                 f"👆\n\n💵 Hozirgi keshbekingiz: <b>{formatted_total}</b> UZS",
