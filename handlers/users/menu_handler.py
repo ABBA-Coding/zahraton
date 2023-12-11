@@ -137,9 +137,9 @@ async def menu(message: types.Message, state: FSMContext, debug: bool, db: Datab
                 else:
                     formatted_total = int(balance)
 
-
-                await message.answer_photo(photo=photo, caption=f"Sizning keshbekingizni ishlatish uchun QR kodingiz "
-                                                                f"👆\n\n💵 Hozirgi keshbekingiz: <b>{formatted_total}</b> UZS",
+                await message.answer_photo(photo=photo,
+                                           caption=f"Sizning keshbekingizni ishlatish uchun QR kodingiz "
+                                                   f"👆\n\n💵 Hozirgi keshbekingiz: <b>{formatted_total}</b> UZS",
                                            reply_markup=menu_keyboard())
             else:
                 if debug is False:

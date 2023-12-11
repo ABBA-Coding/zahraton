@@ -13,21 +13,17 @@ from keyboards.inline.main_inline import *
 from utils.db_api.database import *
 
 
-def check_date_format(date_string):
+def check_date_convert(date_string):
     try:
-        datetime.strptime(date_string, '%Y-%m-%d')
-        return True
+        date_object = datetime.strptime(date_string, '%Y-%m-%d')
+        formatted_year = str(date_object.year).zfill(2)
+        formatted_month = str(date_object.month).zfill(2)
+        formatted_day = str(date_object.day).zfill(2)
+        if len(formatted_month) == len(formatted_day) == 2:
+            return formatted_year, formatted_month, formatted_day
+        return None, None, None
     except ValueError:
-        return False
-
-
-async def generateOTP():
-    return random.randint(111111, 999999)
-
-
-async def isValid(s):
-    Pattern = re.compile("(0|91)?[7-9][0-9]{9}")
-    return Pattern.match(s)
+        return None, None, None
 
 
 async def register_start_message(message: types.Message, state: FSMContext):
@@ -78,8 +74,9 @@ async def get_name(message: types.Message, state: FSMContext):
 
 @dp.message_handler(state='get_birth')
 async def get_name(message: types.Message, state: FSMContext):
-    if check_date_format(message.text) is True:
-        await state.update_data(birth=message.text)
+    year, month, day = check_date_convert(message.text)
+    if month is not None:
+        await state.update_data(birth=str(year)+"-"+str(month)+"-"+str(day))
         # keyboard = await location_send()
         # await message.answer('Iltimos manzilingizni ulashing 👇', reply_markup=keyboard)
         # await state.set_state('get_location')
