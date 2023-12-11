@@ -19,7 +19,7 @@ def get_dashboard_stats():
     ).count()
 
     telegram_chats_count = TelegramChat.objects.filter(is_stopped=False).count()
-    blocked_chats_count = TelegramChat.objects.filter(is_stopped=False).count()
+    blocked_chats_count = TelegramChat.objects.filter(is_stopped=True).count()
     users = TelegramUser.objects.all().count()
     context = {
         'segment': 'dashboard',
