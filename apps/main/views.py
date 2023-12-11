@@ -92,11 +92,16 @@ class SaleListView(generics.ListAPIView):
 def send_telegram(request, notification_id):
     notification = get_object_or_404(Notification, id=notification_id)
     media = []
+    cache_path = settings.MEDIA_ROOT
+
     for i in notification.notificationshots_set.all():
-        media.append(i.image.path)
+        compressed_image = i.image_compress.url
+        compressed_image_path = cache_path + compressed_image[len(settings.MEDIA_URL):]
+        media.append(compressed_image_path)
+
     notification.status = notification.NotificationStatus.PROCEED
     notification.save()
-    chunk_size = 1500
+    chunk_size = 1
     offset = 0
 
     first_task = None
