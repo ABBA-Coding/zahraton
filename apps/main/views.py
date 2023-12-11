@@ -96,6 +96,26 @@ def send_telegram(request, notification_id):
         media.append(i.image.path)
     notification.status = notification.NotificationStatus.PROCEED
     notification.save()
-    send_notifications_task.delay(notification_id, notification.description, media)
+    chunk_size = 1500
+    offset = 0
+
+    first_task = None
+
+    while True:
+        chunk_chats = TelegramChat.objects.filter(is_stopped=False).order_by('id')[offset:offset + chunk_size]
+
+        if not chunk_chats:
+            break
+
+        task = send_notifications_task.signature((notification_id, notification.description, media, offset, chunk_size),
+                                                 immutable=True)
+
+        if first_task:
+            first_task |= task
+        else:
+            first_task = task
+
+        offset += chunk_size
+    first_task.apply_async()
 
     return redirect(reverse('admin:main_notification_changelist'))

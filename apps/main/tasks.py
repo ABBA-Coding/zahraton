@@ -4,14 +4,19 @@ import time
 
 import requests
 from celery import shared_task
+from celery.utils.log import get_task_logger
+from django.db.models import F
 
-from apps.main.models import Notification, NotificationShots
+from apps.main.models import Notification
 from apps.telegram_bot.models import TelegramChat
-
 
 api_token = str(os.getenv("BOT_TOKEN"))
 base_url = f'https://api.telegram.org/bot{api_token}'
 SEND_MEDIA_GROUP = f"https://api.telegram.org/bot{api_token}/sendMediaGroup"
+
+logger = get_task_logger(__name__)
+
+CHUNK_SIZE = 4000
 
 
 def send_media_group(text, chat_id, media):
@@ -37,21 +42,21 @@ def send_notifications_text(text, chat_id, media=None):
 
 
 @shared_task()
-def send_notifications_task(notification_id, text, media):
-    chats = TelegramChat.objects.filter(is_stopped=False)
-    sended_count = 0
-    send_notification_bound = send_media_group if media else send_notifications_text
-    for i in chats:
+def send_notifications_task(notification_id, text, media, offset, chunk_size):
+    chunk_chats = TelegramChat.objects.filter(is_stopped=False).order_by('id')[offset:offset + chunk_size]
+
+    for chat in chunk_chats:
+        send_notification_bound = send_media_group if media else send_notifications_text
+        response = send_notification_bound(text=text, chat_id=chat.telegram_id, media=media)
         time.sleep(0.035)
-        response = send_notification_bound(text=text,
-                                           chat_id=i.telegram_id,
-                                           media=media)
         if response == 200:
-            sended_count += 1
+            chat.is_stopped = False  # Reset is_stopped flag if the message was sent successfully
+            chat.save()
         else:
-            i.is_stopped = True
-            i.save()
-    notification = Notification.objects.get(id=notification_id)
-    notification.all_chats = sended_count
-    notification.status = notification.NotificationStatus.SENDED
-    notification.save()
+            chat.is_stopped = True
+            chat.save()
+
+    Notification.objects.filter(id=notification_id).update(
+        all_chats=F('all_chats') + chunk_chats.count(),
+        status=Notification.NotificationStatus.SENDED
+    )

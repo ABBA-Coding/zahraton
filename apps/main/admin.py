@@ -1,13 +1,9 @@
 from django import forms
-from django.contrib import admin
-from django.db.models.signals import post_save
-from django.dispatch import receiver
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.contrib import admin
 from .forms import CustomCKEditorWidget
 
-from .tasks import send_notifications_task
 
 from .models import *
 

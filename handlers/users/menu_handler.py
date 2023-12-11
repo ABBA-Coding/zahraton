@@ -1,3 +1,5 @@
+import base64
+import io
 from datetime import datetime
 
 from aiogram import types
@@ -28,12 +30,10 @@ async def get_sales_by_index(m: types.Message, index: int, db: Database, debug: 
             if sale["saleshots_set"]:
                 media_group = []
                 for sale_obj in sale['saleshots_set']:
-                    photo = (open(f"{sale_obj['image'].replace('http://localhost:8000/', '')}", 'rb') if debug is True
-                             else open(
-                        f"{sale_obj['image'].replace('https://botloyalty.zahratun.uz/', '/var/www/zahraton.itlink.uz/')}",
-                        'rb'))
+                    byte_photo = base64.b64decode(sale_obj['image_compress'])
+                    image_io = io.BytesIO(byte_photo)
                     media_group += [
-                        types.InputMediaPhoto(media=photo, caption=text),
+                        types.InputMediaPhoto(media=image_io, caption=text),
                     ]
                     text = None
                 await m.answer_media_group(media=media_group)
@@ -58,12 +58,10 @@ async def get_news_by_index(m: types.Message, index: int, db: Database, debug: b
             if news["newsshots_set"]:
                 media_group = []
                 for sale_obj in news['newsshots_set']:
-                    photo = (open(f"{sale_obj['image'].replace('http://localhost:8000/', '')}", 'rb') if debug is True
-                             else open(
-                        f"{sale_obj['image'].replace('https://botloyalty.zahratun.uz/', '/var/www/zahraton.itlink.uz/')}",
-                        'rb'))
+                    byte_photo = base64.b64decode(sale_obj['image_compress'])
+                    image_io = io.BytesIO(byte_photo)
                     media_group += [
-                        types.InputMediaPhoto(media=photo, caption=text),
+                        types.InputMediaPhoto(media=image_io, caption=text),
                     ]
                     text = None
                 await m.answer_media_group(media=media_group)

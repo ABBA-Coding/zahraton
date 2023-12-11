@@ -1,9 +1,15 @@
+import os
 import uuid
 
+from PIL import Image
 from django.db import models
 from apps.authentication.models import MegaUser as User
 from ckeditor.fields import RichTextField
 from urllib.parse import unquote
+
+from imagekit.models import ImageSpecField
+from imagekit.models import ProcessedImageField
+from imagekit.processors import ResizeToFill
 
 MONTH, SEASON, YEAR = (
     "month",
@@ -57,6 +63,8 @@ class Sale(BaseModel):
 class SaleShots(models.Model):
     sale = models.ForeignKey(Sale, on_delete=models.CASCADE)
     image = models.ImageField(verbose_name="Rasm", upload_to="sales")
+    image_compress = ImageSpecField(source='image', format='JPEG',
+                                    options={'quality': 60})
 
     class Meta:
         verbose_name = "Aksiya rasmi"
@@ -87,6 +95,8 @@ class News(BaseModel):
 class NewsShots(models.Model):
     news = models.ForeignKey(News, on_delete=models.CASCADE)
     image = models.ImageField(verbose_name="Rasm", upload_to="news")
+    image_compress = ImageSpecField(source='image', format='JPEG',
+                                    options={'quality': 60})
 
     class Meta:
         verbose_name = "Yangilik rasmi "
@@ -117,6 +127,8 @@ class Notification(models.Model):
 class NotificationShots(models.Model):
     notification = models.ForeignKey(Notification, on_delete=models.CASCADE)
     image = models.ImageField(verbose_name="Rasm", upload_to="notification")
+    image_compress = ImageSpecField(source='image', format='JPEG',
+                                    options={'quality': 60})
 
     class Meta:
         verbose_name = "Bildirishnoma rasmi "
