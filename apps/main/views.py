@@ -101,7 +101,7 @@ def send_telegram(request, notification_id):
 
     notification.status = notification.NotificationStatus.PROCEED
     notification.save()
-    chunk_size = 1
+    chunk_size = 1500
     offset = 0
 
     first_task = None
