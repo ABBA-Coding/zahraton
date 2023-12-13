@@ -44,7 +44,7 @@ def send_notifications_text(text, chat_id, media=None):
 @shared_task()
 def send_notifications_task(notification_id, text, media, offset, chunk_size):
     chunk_chats = TelegramChat.objects.filter(is_stopped=False).order_by('id')[offset:offset + chunk_size]
-
+    text = text.replace("<br />", "\n")
     for chat in chunk_chats:
         send_notification_bound = send_media_group if media else send_notifications_text
         response = send_notification_bound(text=text, chat_id=chat.telegram_id, media=media)
